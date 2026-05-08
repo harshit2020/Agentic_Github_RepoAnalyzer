@@ -1,0 +1,20 @@
+{
+  "name": "js_support",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "maniac",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-sonarjs": "^4.0.3"
+  },
+  "dependencies": {
+    "madge": "^8.0.0"
+  }
+}
