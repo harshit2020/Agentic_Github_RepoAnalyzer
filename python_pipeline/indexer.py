@@ -66,7 +66,7 @@ def indexer():
 
 
         # passing the chunks to LLM and adding  file level summary for metadata
-        # chunks_with_summary = generate_chunks_summary(chunks_for_embedding) import this function for generating chunk level summary and pass the chunks with summary to vector db also
+        # chunks_with_summary = generate_chunks_summary(chunks_for_embedding,api_key) import this function for generating chunk level summary and pass the chunks with summary to vector db also
         
         # combine the chunk level summary then pass it to llm to generate file level summary and here we can give dependency and call graph
         # call_graph = generate_call_graph()

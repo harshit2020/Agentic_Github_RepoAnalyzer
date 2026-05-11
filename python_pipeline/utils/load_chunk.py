@@ -85,4 +85,11 @@ if __name__ == "__main__":
 
     path = "../input_code"
     tokenizer = AutoTokenizer.from_pretrained("nomic-ai/CodeRankEmbed",trust_remote_code=True)
-    chunk_acc_file_type(path,tokenizer)
+    source_code_chunks = chunk_acc_file_type(path,tokenizer)
+    # total_token_source_code = 0
+    # for functions in source_code_chunks:
+    #     total_token_source_code += functions["tokens"] 
+    #     print(f" Tokens : {functions["tokens"]}")
+
+    # print(f"The total source code token count is : {total_token_source_code}")
+    print(source_code_chunks)
