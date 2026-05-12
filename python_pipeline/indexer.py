@@ -9,6 +9,8 @@ import tree_sitter_javascript
 import tree_sitter_python
 from transformers import AutoTokenizer
 from pprint import pprint
+from utils.chunk_summary_llm import generate_chunks_summary
+
 
 #loading some environment
 load_dotenv()
@@ -42,10 +44,12 @@ def load_tokenizer():
 def indexer():
     try:
         path = "./input_code"
+        embedding_MAX_TOKEN = 8192
+
         tokenizer = load_tokenizer()
         embedding_model = load_embedding_model()
 
-        chunks_for_embedding = chunk_acc_file_type(path,tokenizer)
+        chunks_for_embedding = chunk_acc_file_type(path,tokenizer,embedding_MAX_TOKEN)
         print("Chunking Completed!!")
         if not chunks_for_embedding:
             print(f"No chunks found in {path}")
@@ -55,7 +59,7 @@ def indexer():
         for chunk in chunks_for_embedding:
             codes.append(chunk["code"])
         filename_array_for_chunks = [{"filename":chunk["filename"]} for chunk in chunks_for_embedding]
-
+        filepath_array_for_chunks  = [{"filepath":chunk["filepath"]} for chunk in chunks_for_embedding]
         embeddings_source_code = embedding_model.encode(
                         codes,
                         batch_size=8,        
@@ -75,26 +79,29 @@ def indexer():
 
         #Creating collection and adding vectors
         uuids = [str(uuid4()) for _ in codes]
-        
-        try:
-            name_collection = "source_code_collection"
-            client = load_chroma_client()
-            print("Connected to ChromaDB!!")
-            collection = client.create_collection(name=name_collection)
-            print(f"Collection {name_collection} created!!")
-            response = collection.add(
-                ids = uuids,
-                embeddings = embeddings_source_code.tolist(),
-                documents = codes,
-                metadatas = filename_array_for_chunks,
-            )
-            print("Source code vectors added to ChromaDB successfully!!")
+        metadatas_filename_filepath = {
+            "filename":filename_array_for_chunks,
+            "filepath":filepath_array_for_chunks
+        }
+        # try:
+        #     name_collection = "source_code_collection"
+        #     client = load_chroma_client()
+        #     print("Connected to ChromaDB!!")
+        #     collection = client.create_collection(name=name_collection)
+        #     print(f"Collection {name_collection} created!!")
+        #     response = collection.add(
+        #         ids = uuids,
+        #         embeddings = embeddings_source_code.tolist(),
+        #         documents = codes,
+        #         metadatas = metadatas_filename_filepath,
+        #     )
+        #     print("Source code vectors added to ChromaDB successfully!!")
 
-        except Exception as e:
-            raise RuntimeError(f"Failed to add documents to ChromaDB: {e}")
+        # except Exception as e:
+        #     raise RuntimeError(f"Failed to add documents to ChromaDB: {e}")
 
-        print(f" Successfully indexed {len(chunks_for_embedding)} documents")
-        return response
+        # print(f" Successfully indexed {len(chunks_for_embedding)} documents")
+        # return response
 
     except Exception as e:
         print(f"Indexing failed: {str(e)}")
