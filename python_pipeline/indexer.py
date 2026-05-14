@@ -10,10 +10,12 @@ import tree_sitter_python
 from transformers import AutoTokenizer
 from pprint import pprint
 from utils.chunk_summary_llm import generate_chunks_summary
-
+from utils.file_summary_llm import generate_file_summary
+from utils.module_summary_llm import generate_module_summary
 
 #loading some environment
 load_dotenv()
+
 try:
     CHROMA_API_KEY = os.getenv("CHROMA_API_KEY")
     CHROMA_TENANT = os.getenv("CHROMA_TENANT")
@@ -44,8 +46,11 @@ def load_tokenizer():
 def indexer():
     try:
         path = "./input_code"
-        embedding_MAX_TOKEN = 8192
+        api_key = "AIzaSyC3fzZBNXWhkVH2PHncjVQf3bI2WLPHgjc"
+        model_name="gemini-3.1-flash-lite-preview"
+        ollama_flag = False
 
+        embedding_MAX_TOKEN = 8192
         tokenizer = load_tokenizer()
         embedding_model = load_embedding_model()
 
@@ -70,12 +75,17 @@ def indexer():
 
 
         # passing the chunks to LLM and adding  file level summary for metadata
-        # chunks_with_summary = generate_chunks_summary(chunks_for_embedding,api_key) import this function for generating chunk level summary and pass the chunks with summary to vector db also
-        
+        chunks_with_summary = generate_chunks_summary(chunks_for_embedding,model_name,api_key,ollama_flag) 
+        print("Chunks Summary generated successfully!!")
         # combine the chunk level summary then pass it to llm to generate file level summary and here we can give dependency and call graph
         # call_graph = generate_call_graph()
         # dependency_graph = generate_dep_graph()
-        # file_level_summary = generate_file_level(chunks_with_summary,call_graph,dependency_graph)  # After generating file level summary store in mongoDB, again give it to llm with dep and call graph to generate modular level summary 
+
+        file_level_summary = generate_file_level(chunks_with_summary,model_name,api_key,ollama_flag)  # After generating file level summary store in mongoDB, again give it to llm with dep and call graph to generate modular level summary 
+        print("File Summary generated successfully!!")
+        module_level_summary = generate_module_summary(chunks_with_summary,model_name,api_key,ollama_flag)
+        print("Module Summary generated successfully!!")
+
 
         #Creating collection and adding vectors
         uuids = [str(uuid4()) for _ in codes]
