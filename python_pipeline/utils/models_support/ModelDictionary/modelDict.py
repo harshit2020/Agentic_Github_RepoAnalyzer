@@ -99,7 +99,25 @@ def giveModelList():
             "supports_reasoning": False,
             "supports_structured_output": True,
             "supports_tools": False,
-        }
+        },
+
+        "qwen2.5-coder:1.5b": {
+            "provider": "ollama",
+            "context_window": 32000,
+            "max_output_tokens": 8000,
+            "supports_reasoning": False,
+            "supports_structured_output": True,
+            "supports_tools": False,
+        },
+
+        "qwen2.5-coder:7b": {
+            "provider": "ollama",
+            "context_window": 32000,
+            "max_output_tokens": 8000,
+            "supports_reasoning": False,
+            "supports_structured_output": True,
+            "supports_tools": False,
+        },
     }
         
     return ModelList

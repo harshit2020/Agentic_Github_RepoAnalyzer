@@ -1,24 +1,21 @@
 import queue
 
-# global queue for repo url handling
-indexing_api_queue = queue.Queue()
-for key in ["key1", "key2", "key3", "key4", "key5"]:
-    indexing_api_queue.put(key)
-
-def put_api_queue(api_key):
-    indexing_api_queue.put(api_key)
-def get_api_key():
-    return indexing_api_queue.get()
 
 #this is maybe the check-function
-def start_analysis_for_repo(github_repo_url):
+def start_analysis_for_repo(github_repo_url,model_name,ollama_flag,api_key):
     # function to get source code from github_repo_url
-    api_key = get_api_key()
     
-    # response = indexer(source_code,api_key)
+    # parts = github_repo_url.rstrip("/").split("/")
+    # owner = parts[-2]
+    # repo = parts[-1]
+    
+    # create folder name as owner_repo to store the souce code individually
+
     try:
         response = indexer(source_code, api_key)
-    finally:
-        put_api_queue(api_key)    # ALWAYS return key, success or failure
+
+        #after indexing the code we ll delete it from the server i.e. delete folder owner_repo
+    except Exception as e:
+        print(f"LLM Pipeline failed \n Error : {e}")
 
     # return node_job_completed

@@ -14,7 +14,13 @@ def AnthropicTokenizer():
     tokenizer = GPT2TokenizerFast.from_pretrained('Xenova/claude-tokenizer')
     return tokenizer
 
+def OllamaTokenizer():
+    tokenizer = AutoTokenizer.from_pretrained("nomic-ai/CodeRankEmbed", trust_remote_code=True)
+    return tokenizer
 
+def FallbackTokenizer():
+    tokenizer = AutoTokenizer.from_pretrained("nomic-ai/CodeRankEmbed", trust_remote_code=True)
+    return tokenizer
 
 def load_tokenizer(model_name):
     ModelList = giveModelList()
@@ -29,4 +35,10 @@ def load_tokenizer(model_name):
         return tokenizer
     elif provider_info == "anthropic":
         tokenizer = AnthropicTokenizer()
-        return tokenizer
+        return tokenizer    
+    elif provider_info == "ollama":
+        tokenizer = OllamaTokenizer()
+        return tokenizer    
+    else:
+        tokenizer = FallbackTokenizer()
+        return tokenizer 

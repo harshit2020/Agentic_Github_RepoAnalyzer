@@ -70,7 +70,8 @@ def chunk_acc_file_type(path,tokenizer,embedding_MAX_TOKEN):
     docs = load_source_code(path)
     source_code_chunks = []
     for doc in docs:
-        path = str(Path(doc.metadata["source"]))
+        full_path = Path(doc.metadata["source"])
+        path = str(full_path.relative_to("python_pipeline/input_code"))
         ext = Path(doc.metadata["source"]).suffix
         filename = Path(doc.metadata["source"]).name
         source_code = doc.page_content
@@ -87,7 +88,7 @@ def chunk_acc_file_type(path,tokenizer,embedding_MAX_TOKEN):
 
 if __name__ == "__main__":
 
-    path = "../input_code"
+    path = "python_pipeline/input_code"
     tokenizer = AutoTokenizer.from_pretrained("nomic-ai/CodeRankEmbed",trust_remote_code=True)
     embedding_MAX_TOKEN = 8192
     source_code_chunks = chunk_acc_file_type(path,tokenizer,embedding_MAX_TOKEN)
