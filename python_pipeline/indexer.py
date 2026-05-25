@@ -17,6 +17,7 @@ from python_pipeline.utils.vectorDB.vectorize_llm_output import chunk_to_vector_
 from python_pipeline.utils.vectorDB.crud_collection import *
 from python_pipeline.utils.vectorDB.metadata_creator import *
 
+
 #loading some environment
 load_dotenv()
 
@@ -25,7 +26,6 @@ load_dotenv()
 # Loading functions
 def load_embedding_model():
     return SentenceTransformer("nomic-ai/CodeRankEmbed",trust_remote_code=True)
-
 
 def load_tokenizer():
     return AutoTokenizer.from_pretrained("nomic-ai/CodeRankEmbed", trust_remote_code=True)
@@ -48,20 +48,25 @@ def embed_list_str(stringg_listt):
     
     print(f"{len(embeddings_source_code)} chunks, embedding shape {embeddings_source_code.shape}")
     return embeddings_source_code
-    
 
 #Indexing function
 def indexer():
     
     try:
         path = "python_pipeline/input_code"
-        api_key = "AIzaSyCCLp1a-C0l4Jh360lzjtM20Vm3AIHtVeE"
-        model_name="gemini-3.1-flash-lite-preview"
+        api_key = "AIzaSyBMX0SnLtn5g1iFN4xzfz3bzeKlpm_K7pg"
+        model_name="gemini-3.1-flash-lite"
         ollama_flag = False
         db_flag = False
         repo_id = "SmilingDev"
         repo_name = "Test1"
         name_collection = f"{repo_id}_{repo_name}"
+
+
+        if db_flag == True:
+            client = create_connect_collection_localhost()
+        else:
+            client = create_connect_collection_api()
 
         embedding_MAX_TOKEN = int(os.getenv("embedding_MAX_TOKEN"))
         print(f"embedding_MAX_TOKEN = {embedding_MAX_TOKEN}")
@@ -77,21 +82,15 @@ def indexer():
         codes = []
         for chunk in chunks_for_embedding:
             codes.append(chunk["code"])
-        filename_array_for_chunks = [{"filename":chunk["filename"]} for chunk in chunks_for_embedding]
-        filepath_array_for_chunks  = [{"filepath":chunk["filepath"]} for chunk in chunks_for_embedding]
         embeddings_source_code = embedding_model.encode(
                         codes,
                         batch_size=8,        
                         show_progress_bar=True
                     )
-        print(f"{len(chunks_for_embedding)} chunks, embedding shape {embeddings_source_code.shape}")
-       
-
-        if db_flag == True:
-            client = create_connect_collection_localhost()
-        else:
-            client = create_connect_collection_api()
-
+        print(f"{len(chunks_for_embedding)} chunks, dense vectors created!!")
+        
+        metadata_codes = [{"filepath" : chunk["filepath"],"level":"RAW_CODE"} for chunk in chunks_for_embedding]
+        add_collection(client,chunks_for_embedding,codes,embeddings_source_code,ollama_flag,db_flag,name_collection,metadata_codes)
         # passing the chunks to LLM and adding  file level summary for metadata
         chunks_with_summary = generate_chunks_summary(chunks_for_embedding,model_name,api_key,ollama_flag)
         print("Chunks Summary generated successfully!!\n\n")
@@ -115,7 +114,6 @@ def indexer():
 
 
         module_level_summary = generate_module_summary(file_level_summary,model_name,api_key,ollama_flag)
-        print(module_level_summary)
         print("Module Summary generated successfully!!")
         text_module_level_summary= [module_to_vector_text(chunk) for chunk in module_level_summary]
         embeddings_module_level_summary = embed_list_str(text_module_level_summary)

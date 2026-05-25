@@ -91,7 +91,7 @@ def giveModelList():
             "supports_tools": False,
         },
 
-        "gemini-3.1-flash-lite-preview": {
+        "gemini-3.1-flash-lite": {
             "provider": "google",
             "tokenizer": "gemini_tokenizer",
             "context_window": 1_000_000,
@@ -100,7 +100,6 @@ def giveModelList():
             "supports_structured_output": True,
             "supports_tools": False,
         },
-
         "qwen2.5-coder:1.5b": {
             "provider": "ollama",
             "context_window": 32000,

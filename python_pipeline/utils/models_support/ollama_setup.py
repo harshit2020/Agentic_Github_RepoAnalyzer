@@ -54,7 +54,7 @@ def validate_and_save_env_updating_ollama_(
 
     _add_to_model_list(model_name, num_ctx, num_predict)
 
-    env_path = ".env"
+    env_path = "python_pipeline/.env"
     set_key(env_path, "OLLAMA_HOST",host)
     set_key(env_path, "OLLAMA_PORT",port)
     set_key(env_path, "OLLAMA_MODEL",model_name)

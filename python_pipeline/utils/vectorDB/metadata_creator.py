@@ -5,11 +5,13 @@ from datetime import datetime
 import json
 
 
+
+
 def metadata_chunk_level(chunks_with_summary):
 
     metadata_chunks = []
 
-    for chunk in chunks_with_summary:
+    for chunk in (chunks_with_summary):
 
         function_info = chunk.function_info
 
@@ -23,10 +25,6 @@ def metadata_chunk_level(chunks_with_summary):
             "function_name": function_info.function_name,
 
             "updated_at": datetime.utcnow().isoformat(),
-
-            "raw": json.dumps(
-                chunk.model_dump()
-            )
         })
 
     return metadata_chunks
@@ -46,10 +44,6 @@ def metadata_file_level(file_summary_chunks):
             "module_name": file_summary.module_name,
 
             "updated_at": datetime.utcnow().isoformat(),
-
-            "raw": json.dumps(
-                file_summary.model_dump()
-            )
         })
 
     return metadata
@@ -67,10 +61,6 @@ def metadata_module_level(module_summary_chunks):
             "module_name": module_summary.module_name,
 
             "updated_at": datetime.utcnow().isoformat(),
-
-            "raw": json.dumps(
-                module_summary.model_dump()
-            )
         })
 
     return metadata
@@ -91,10 +81,6 @@ def metadata_codebase_level(
         "repo_name": repo_name,
 
         "updated_at": datetime.utcnow().isoformat(),
-
-        "raw": json.dumps(
-            codebase_summary.model_dump()
-        )
     }]
 
     return metadata

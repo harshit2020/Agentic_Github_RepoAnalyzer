@@ -16,7 +16,7 @@ from sentence_transformers import SentenceTransformer
 
 load_dotenv()
 
-def create_connect_collection_api():
+def create_connect_collection_api(): #change this to get this from redis
     try:
         CHROMA_API_KEY = os.getenv("CHROMA_API_KEY")
         CHROMA_TENANT = os.getenv("CHROMA_TENANT")
