@@ -26,7 +26,8 @@ def redis_setup(user_id,db_flag_string,repo_id,repo_name):
         r.hset(user_id,
             mapping = {
                 "db_flag":db_flag,
-                "collection_name":collection_name
+                "collection_name":collection_name,
+                "thread_id" : "None"
             }
         )
         print("Redis data insertion successfull!!")

@@ -259,6 +259,77 @@ def retrieval_function(user_input: str)->dict:
         print(f"retrieval failed!! \n {e}")
 
 @tool(args_schema=RetrievalInput)
+def retrieval_file(user_input: str)->dict:
+    """
+        Retrieves FILE-LEVEL summaries and responsibilities from the repository.
+
+        Use this tool for:
+        - understanding what a specific file does
+        - locating the correct file before raw code retrieval
+        - identifying exports, responsibilities, and dependencies
+        - discovering where features are implemented
+        - tracing component ownership
+        - finding entry points or initialization files
+        - resolving filepaths for implementation-level questions
+
+        This tool ONLY searches FILE_SUMMARY indexed documents.
+
+        Best used when:
+        - the user asks about a specific file
+        - the filepath is unknown but needs to be resolved
+        - you need to identify which file contains a feature
+        - the user asks where something is implemented
+        - summaries are sufficient and raw code is unnecessary
+        - preparing for retrieval_raw_code
+
+        The returned context may include:
+        - filepath
+        - filename
+        - module/package location
+        - file purpose
+        - architecture role
+        - dependencies
+        - exported/public APIs
+        - related files
+        - core logic flow
+        - complexity classification
+
+        Examples:
+        - "What does Layout.jsx do?"
+        - "Which file handles authentication?"
+        - "Where is the dashboard implemented?"
+        - "Find the file containing footer logic"
+        - "Which file exports the Header component?"
+        - "What file manages signup flow?"
+        - "Locate the restaurant review page"
+        - "Find the file responsible for leaderboard fetching"
+
+        IMPORTANT:
+        - Use this tool BEFORE retrieval_raw_code when the filepath is unknown.
+        - Do NOT use this tool for exact implementation details or JSX/code inspection.
+        - Do NOT use this tool for repository-wide architecture questions.
+    """
+    try:
+        user_id = get_user_id()
+        user_info = get_DBflag_collection_name(user_id)
+        db_flag_string = user_info["db_flag"]
+        if db_flag_string == "False":
+            db_flag = False
+        else:
+            db_flag = True
+        collection_name = user_info["collection_name"]
+        collection = get_collection_chroma(db_flag,collection_name)
+        query_vectors = query_to_vectors(user_input)
+        result = collection.query(
+            query_embeddings = query_vectors,
+            n_results=8,
+            where={"level":"FILE_SUMMARY"}
+        )
+        return result
+    except Exception as e:
+        print(f"retrieval failed!! \n {e}")
+
+@tool(args_schema=RetrievalInput)
 def retrieval_module(user_input: str)->dict:
     """
         Retrieves MODULE-LEVEL architectural summaries from the repository.

@@ -2,12 +2,17 @@ from langchain.agents import create_agent, AgentState
 from  dotenv import load_dotenv,set_key
 from langchain_core.utils.uuid import uuid7
 from langgraph.checkpoint.redis import RedisSaver
-from langchain.agents.middleware import SummarizationMiddleware
+from langchain.agents.middleware import SummarizationMiddleware,ToolCallLimitMiddleware
 from python_pipeline.retrieval import *
 import redis
 from python_pipeline.utils.models_support.load_model_byok import *
 from python_pipeline.utils.models_support.load_model_ollama import *
+from langgraph.errors import GraphRecursionError
+
+
 load_dotenv()
+
+#Python_Pipeline completed only safeguards and agent behaviour part is left
 
 def redis_url():
     try:
@@ -51,7 +56,12 @@ def get_user_thread(user_id):
         print(f"exists = {exists}")
         if exists == 0:
             return None
-        return r.hgetall(user_id)
+        if exists == 1:
+            user_id = r.hgetall(user_id)
+            if user_id["thread_id"] == "None":
+                return None
+            else:
+                return user_id
     except Exception as e:
         raise RuntimeError(f"Failed to retrieve user's thread_id \n {e}")
 
@@ -74,7 +84,8 @@ def invoke_agent(user_query,user_id,ollama_flag,model_name,api_key):
         config = {
             "configurable": {
                 "thread_id": thread_id
-            }
+            },
+           
         }
 
 
@@ -291,68 +302,69 @@ def invoke_agent(user_query,user_id,ollama_flag,model_name,api_key):
             checkpointer.setup()
             agent = create_agent(
                 model=agent_model,
+                system_prompt = SYSTEM_PROMPT,
                 tools=[
                     retrieval_general,
                     retrieval_function,
+                    retrieval_file,
                     retrieval_module,
                     retrieval_codebase,
                     retrieval_raw_code
                 ],
                 middleware=[
                     SummarizationMiddleware(
-                        model=agent_model,
-                        trigger=("tokens", 8000),
-                    )
+                       model=agent_model,
+                       trigger=("tokens", 8000),
+                    ),
+                    ToolCallLimitMiddleware(
+                        run_limit = 4,
+                        exit_behavior="end"
+                    ),
                 ],
                 checkpointer=checkpointer
             )
-            response = ""
+        
             stream = agent.stream(
                 {
                     "messages": [
                         {
-                            "role":"system",
-                            "content":SYSTEM_PROMPT
-                        },
-                        {
                             "role": "user",
                             "content": user_query
-                        }
+                        },
                     ]
                 },
                 config=config,
                 stream_mode="messages"
             )
+            response = ""
 
             for chunk, metadata in stream:
 
-                if hasattr(chunk, "content"):
+                if metadata.get("langgraph_node") != "model":
+                    continue
 
-                    if isinstance(chunk.content, str):
+                content = getattr(chunk, "content", "")
 
-                        print(chunk.content, end="", flush=True)
+                text = ""
 
-                        response += chunk.content
+                if isinstance(content, str):
 
-                    elif isinstance(chunk.content, list):
+                    text = content
 
-                        for item in chunk.content:
+                elif isinstance(content, list):
 
-                            if isinstance(item, str):
+                    for item in content:
 
-                                print(item, end="", flush=True)
+                        if isinstance(item, str):
+                            text += item
 
-                                response += item
+                        elif isinstance(item, dict):
+                            text += item.get("text", "")
 
-                            elif isinstance(item, dict):
+                if text:
+                    response += text
 
-                                text = item.get("text", "")
-
-                                print(text, end="", flush=True)
-
-                                response += text
-
-            return response
+        return response
 
     except Exception as e:
         raise RuntimeError(
@@ -360,10 +372,11 @@ def invoke_agent(user_query,user_id,ollama_flag,model_name,api_key):
         )
 
 if __name__ == "__main__":
-    user_query = "how many buttons does the footer have?? also i have fixed the tools"
-    user_id = "smilingManiacDev#221"
+    user_query = "what does it have in header ?"
+    user_id = "test_mail@gmail.com"
     ollama_flag = False
     model_name = "gemini-3.1-flash-lite"
-    api_key = "AIzaSyBMX0SnLtn5g1iFN4xzfz3bzeKlpm_K7pg"
+    api_key = "AIzaSyBH92BNIRgjRIxKKlXxRcU6QsUVfFI9f_0"
     response = invoke_agent(user_query,user_id,ollama_flag,model_name,api_key)
     print(response)
+  
