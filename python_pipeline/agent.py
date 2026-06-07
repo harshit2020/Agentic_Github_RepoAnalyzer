@@ -49,7 +49,7 @@ def store_thread_id(user_id,thread_id):
     except Exception as e:
         raise RuntimeError("Failed to store user's thread_id")
 
-def get_user_thread(user_id):
+def get_user_info(user_id):
     try:
         r = connect_redis_store()
         exists = r.exists(user_id)
@@ -58,21 +58,20 @@ def get_user_thread(user_id):
             return None
         if exists == 1:
             user_id = r.hgetall(user_id)
-            if user_id["thread_id"] == "None":
-                return None
-            else:
-                return user_id
+            return user_id
     except Exception as e:
-        raise RuntimeError(f"Failed to retrieve user's thread_id \n {e}")
+        raise RuntimeError(f"Failed to retrieve user's info \n {e}")
 
 
-def invoke_agent(user_query,user_id,ollama_flag,model_name,api_key):
+def invoke_agent(user_query,user_id):
     try:
         env_path = "python_pipeline/.env"
         set_key(env_path,"user_input",user_query)
-        exists = get_user_thread(user_id)
-        
+        exists = get_user_info(user_id)
         if exists is None:
+            raise ValueError("User timed out!!")
+        thread_id_exists = exists["thread_id"]
+        if thread_id_exists is None:
             thread_id = str(uuid7())
             store_thread_id(
                 user_id,
@@ -80,6 +79,14 @@ def invoke_agent(user_query,user_id,ollama_flag,model_name,api_key):
             )
         else:
             thread_id = exists["thread_id"]
+            
+        ollama_flag_string = exists["ollama_flag"]
+        if ollama_flag_string == "True":
+            ollama_flag = True
+        else:
+            ollama_flag = False       
+        model_name = exists["model_name"]
+        api_key = exists["api_key"]
 
         config = {
             "configurable": {
@@ -372,11 +379,12 @@ def invoke_agent(user_query,user_id,ollama_flag,model_name,api_key):
         )
 
 if __name__ == "__main__":
-    user_query = "what does it have in header ?"
+    user_query = "what does it have in footer ?"
     user_id = "test_mail@gmail.com"
     ollama_flag = False
     model_name = "gemini-3.1-flash-lite"
     api_key = "AIzaSyBH92BNIRgjRIxKKlXxRcU6QsUVfFI9f_0"
-    response = invoke_agent(user_query,user_id,ollama_flag,model_name,api_key)
+    response = invoke_agent(user_query,user_id)
     print(response)
   
+

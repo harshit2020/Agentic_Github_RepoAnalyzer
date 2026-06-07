@@ -24,7 +24,7 @@ def get_cloud_models() -> dict:
     return {k: v for k, v in all_models.items() if v["provider"] != "ollama"}
 
 #This is the function when someone calls a ollama saved button
-def validate_and_save_env_updating_ollama_(
+def validate_and_save_env_updating_ollama(
     host: str, port: str, model_name: str,
     num_ctx: int = 32000, num_predict: int = 8000, temperature: float = 0,
     requests_per_second: float = 1.0, max_bucket_size: int = 1
@@ -145,4 +145,4 @@ def _remove_model_entry(content: str, model_name: str) -> str:
 if __name__ == "__main__":
     print("Ollama models:", get_ollama_models())
     print("Cloud models:", get_cloud_models())
-    validate_and_save_env_updating_ollama_("http://localhost", "11434", "qwen2.5-coder:7b")
+    validate_and_save_env_updating_ollama("http://localhost", "11434", "qwen2.5-coder:7b")

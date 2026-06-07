@@ -1,0 +1,2 @@
+[tool.fastapi]
+entrypoint = "all_api:app"

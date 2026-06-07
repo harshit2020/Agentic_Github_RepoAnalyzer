@@ -16,7 +16,7 @@ from python_pipeline.utils.codebase_summary_llm import generate_codebase_summary
 from python_pipeline.utils.vectorDB.vectorize_llm_output import chunk_to_vector_text,file_to_vector_text,module_to_vector_text,codebase_to_vector_text
 from python_pipeline.utils.vectorDB.crud_collection import *
 from python_pipeline.utils.vectorDB.metadata_creator import *
-
+from python_pipeline.agent import get_user_info
 
 #loading some environment
 load_dotenv()
@@ -50,23 +50,28 @@ def embed_list_str(stringg_listt):
     return embeddings_source_code
 
 #Indexing function
-def indexer():
+def indexer(user_id):
     
     try:
         path = "python_pipeline/input_code"
-        api_key = "AIzaSyBMX0SnLtn5g1iFN4xzfz3bzeKlpm_K7pg"
-        model_name="gemini-3.1-flash-lite"
-        ollama_flag = False
-        db_flag = False
-        repo_id = "SmilingDev"
-        repo_name = "Test1"
-        name_collection = f"{repo_id}_{repo_name}"
 
-
+        exists = get_user_info(user_id)
+        ollama_flag_string = exists["ollama_flag"]
+        if ollama_flag_string == "True":
+            ollama_flag = True
+        else:
+            ollama_flag = False       
+        model_name = exists["model_name"]
+        api_key = exists["api_key"]
+        db_flag = exists["db_flag"]
+        name_collection = exists["collection_name"]
+        repo_name = exists["repo_name"]
+        repo_id = exists["repo_id"]
+        
         if db_flag == True:
             client = create_connect_collection_localhost()
         else:
-            client = create_connect_collection_api()
+            client = create_connect_collection_api(user_id)
 
         embedding_MAX_TOKEN = int(os.getenv("embedding_MAX_TOKEN"))
         print(f"embedding_MAX_TOKEN = {embedding_MAX_TOKEN}")
@@ -135,6 +140,7 @@ def indexer():
         return None
 
 if __name__ == "__main__":
-    indexer()
+    user_id = "test_mail@gmail.com"
+    indexer(user_id)
 
 

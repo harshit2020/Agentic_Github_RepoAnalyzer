@@ -40,12 +40,12 @@ def get_user_id():
     except Exception as e:
         raise RuntimeError(f"Failed to retrieve user's info \n {e}")
 
-def get_collection_chroma(db_flag,collection_name):
+def get_collection_chroma(db_flag,collection_name,user_id):
     try:
         if db_flag == True:
             client = create_connect_collection_localhost()
         else:
-            client = create_connect_collection_api()
+            client = create_connect_collection_api(user_id)
         collection = client.get_collection(name=collection_name)
         return collection
     except Exception as e:
@@ -128,7 +128,7 @@ def retrieval_general(user_input: str)->dict:
         else:
             db_flag = True
         collection_name = user_info["collection_name"]
-        collection = get_collection_chroma(db_flag,collection_name)
+        collection = get_collection_chroma(db_flag,collection_name,user_id)
         query_vectors = query_to_vectors(user_input)
         result = collection.query(
             query_embeddings = query_vectors,
@@ -193,7 +193,7 @@ def retrieval_raw_code(user_input:str,filepath: str)->dict:
         else:
             db_flag = True
         collection_name = user_info["collection_name"]
-        collection = get_collection_chroma(db_flag,collection_name)
+        collection = get_collection_chroma(db_flag,collection_name,user_id)
         query_vectors = query_to_vectors(user_input)
         result = collection.query(
             query_embeddings = query_vectors,
@@ -247,7 +247,7 @@ def retrieval_function(user_input: str)->dict:
         else:
             db_flag = True
         collection_name = user_info["collection_name"]
-        collection = get_collection_chroma(db_flag,collection_name)
+        collection = get_collection_chroma(db_flag,collection_name,user_id)
         query_vectors = query_to_vectors(user_input)
         result = collection.query(
             query_embeddings = query_vectors,
@@ -318,7 +318,7 @@ def retrieval_file(user_input: str)->dict:
         else:
             db_flag = True
         collection_name = user_info["collection_name"]
-        collection = get_collection_chroma(db_flag,collection_name)
+        collection = get_collection_chroma(db_flag,collection_name,user_id)
         query_vectors = query_to_vectors(user_input)
         result = collection.query(
             query_embeddings = query_vectors,
@@ -366,7 +366,7 @@ def retrieval_module(user_input: str)->dict:
         else:
             db_flag = True
         collection_name = user_info["collection_name"]
-        collection = get_collection_chroma(db_flag,collection_name)
+        collection = get_collection_chroma(db_flag,collection_name,user_id)
         query_vectors = query_to_vectors(user_input)
         result = collection.query(
             query_embeddings = query_vectors,
@@ -415,7 +415,7 @@ def retrieval_codebase(user_input: str)->dict:
         else:
             db_flag = True
         collection_name = user_info["collection_name"]
-        collection = get_collection_chroma(db_flag,collection_name)
+        collection = get_collection_chroma(db_flag,collection_name,user_id)
         query_vectors = query_to_vectors(user_input)
         result = collection.query(
             query_embeddings = query_vectors,
