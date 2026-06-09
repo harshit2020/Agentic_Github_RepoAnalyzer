@@ -1,0 +1,110 @@
+import { useState, type FormEvent } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
+import { useAuth } from "@/context/AuthContext"
+import { extractErrorMessage, getUserSetup, login as loginApi } from "@/services/api"
+import type { SetupConfig } from "@/services/types"
+import { AuthShell } from "@/components/shared/AuthShell"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
+export default function Login() {
+  const navigate = useNavigate()
+  const { login, setSetupComplete, setConfig, setCurrentRepo, setIndexedRepos } = useAuth()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!email || !password) {
+      toast.error("Please enter your email and password.")
+      return
+    }
+
+    setLoading(true)
+    try {
+      const data = await loginApi({ email, password })
+      const username: string = data?.username || data?.user?.username || email.split("@")[0]
+      const avatar: string | undefined = data?.avatar || data?.user?.avatar
+
+      login({ email, username, avatar })
+
+      // Check if this user already has a saved setup.
+      try {
+        const setup = await getUserSetup(email)
+        const config: SetupConfig | undefined = setup?.config || setup?.data || (setup && Object.keys(setup).length ? setup : undefined)
+        const hasSetup = Boolean(config && (config.modelName || config.db_flag !== undefined))
+
+        if (hasSetup) {
+          setConfig(config as SetupConfig)
+          if (setup?.repo_url) {
+            setCurrentRepo(setup.repo_url)
+            setIndexedRepos([setup.repo_url])
+          }
+          setSetupComplete(true)
+          toast.success("Welcome back!")
+          navigate("/chat")
+          return
+        }
+      } catch {
+        // No existing setup found — fall through to setup flow.
+      }
+
+      setSetupComplete(false)
+      toast.success("Logged in. Let's set things up.")
+      navigate("/setup")
+    } catch (err) {
+      toast.error(extractErrorMessage(err))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <AuthShell title="Welcome back" subtitle="Sign in to analyze and chat with your repositories.">
+      <Card className="border-border/80 bg-card/70 backdrop-blur">
+        <CardContent className="pt-6">
+          <form onSubmit={handleSubmit} className="grid gap-4">
+            <div className="grid gap-1.5">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <Button type="submit" className="mt-2 w-full" disabled={loading}>
+              {loading && <Loader2 className="animate-spin" />}
+              {loading ? "Signing in..." : "Sign in"}
+            </Button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            {"Don't have an account? "}
+            <Link to="/signup" className="font-medium text-primary hover:underline">
+              Sign up
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
+    </AuthShell>
+  )
+}
