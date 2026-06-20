@@ -1,10 +1,11 @@
 import axios from 'axios';
-import repo_job_queue from './queue.js';
+import {repo_job_queue} from './queue.js';
 import asyncHandler from '../utils/asyncHandler.js'
+import ApiError from '../utils/ApiError.js';
 
 const enqueue_user_setup = asyncHandler(async(req, res) => {
-    const user_id = req.userId || "test_mail@gmail.com";
-    const { db_flag, ollama_flag, repo_url, modelName, api_key } = req.body
+    // const user_id = req.userId || "test_mail@gmail.com";
+    const { db_flag, ollama_flag, repo_url, modelName, user_id, api_key } = req.body
 
     let db_job
 
@@ -91,29 +92,32 @@ const enqueue_user_setup = asyncHandler(async(req, res) => {
     },{ removeOnComplete: 1000, removeOnFail: 5000 })
 })
 
+
 const enqueue_indexer = asyncHandler(async(req, res) => {
-    const user_id = req.userId || "test_mail@gmail.com";
+    const {user_id,repo_url} = req.body
     const job = await repo_job_queue.add('index', {
-        endpoint: "/api/v1/indexer",
-        method: "GET",
-        user_id
+        endpoint: "/api/v1/repo_operation/index",
+        method: "POST",
+        user_id,
+        repo_url
     },{ removeOnComplete: 1000, removeOnFail: 5000 })
     console.log(job.data)
     return res.json({ jobID: job.id,status: "queued" })
 })
 
 const enqueue_ai_retrieval = asyncHandler(async(req, res) => {
-     const user_id = req.userId || "test_mail@gmail.com";
-    const { user_query } = req.body
+    const { user_query, user_id ,repo_url} = req.body
     const job = await repo_job_queue.add('ai-retrieval', {
-        endpoint: "/api/v1/ai_retrieval_query",
-        method: "GET",
+        endpoint: "/api/v1/repo_operation/retrieve",
+        method: "POST",
         user_id,
-        user_query
+        user_query,
+        repo_url
     },{ removeOnComplete: 1000, removeOnFail: 5000 })
     console.log(job.data)
     return res.json({ jobID: job.id, status: "queued" })
 })
+
 
 const healthCheckJob = asyncHandler(async(req, res) => {
     const job = await repo_job_queue.getJob(req.params.jobID)
@@ -131,6 +135,8 @@ const healthCheckJob = asyncHandler(async(req, res) => {
         error: failed
     })
 })
+
+
 
 export { 
         enqueue_user_setup, 

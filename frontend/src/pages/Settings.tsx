@@ -39,15 +39,9 @@ export default function Settings() {
     let active = true
     setLoadingModels(true)
     getModelNames()
-      .then((data) => {
-        if (!active) return
-        const names = new Set<string>()
-        Object.values(data).forEach((v) => {
-          if (Array.isArray(v)) v.forEach((x) => names.add(String(x)))
-          else if (typeof v === "string") names.add(v)
+        .then((data) => {
+          setModelNames(Object.keys(data.ModelList))
         })
-        setModelNames(Array.from(names))
-      })
       .catch((err) => toast.error(extractErrorMessage(err)))
       .finally(() => active && setLoadingModels(false))
     return () => {

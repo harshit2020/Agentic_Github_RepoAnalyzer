@@ -50,7 +50,7 @@ def embed_list_str(stringg_listt):
     return embeddings_source_code
 
 #Indexing function
-def indexer(user_id):
+def indexer(user_id,repo_url):
     
     try:
         path = "python_pipeline/input_code"
@@ -64,10 +64,10 @@ def indexer(user_id):
         model_name = exists["model_name"]
         api_key = exists["api_key"]
         db_flag = exists["db_flag"]
-        name_collection = exists["collection_name"]
-        repo_name = exists["repo_name"]
-        repo_id = exists["repo_id"]
-        
+        parts = repo_url.rstrip("/").split("/")
+        repo_id = parts[-2]
+        repo_name = parts[-1]
+        name_collection = f"{repo_id}_{repo_name}"
         if db_flag == True:
             client = create_connect_collection_localhost()
         else:
@@ -136,7 +136,7 @@ def indexer(user_id):
 
         print("Indexing Completed Successfully!!")
     except Exception as e:
-        print(f"Indexing failed: {str(e)}")
+        raise ValueError(f"Indexing failed: {str(e)}")
         return None
 
 if __name__ == "__main__":

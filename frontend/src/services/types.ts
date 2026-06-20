@@ -60,6 +60,7 @@ export interface IndexPayload {
 export interface RetrievePayload {
   user_id: string
   user_query: string
+  repo_url : string
 }
 
 /** Response from POST endpoints that enqueue a background job. */

@@ -2,6 +2,9 @@ import { useState } from "react"
 import { User, Bot, FileCode, ChevronDown, ChevronRight, Copy, Check } from "lucide-react"
 import type { ChatMessage as ChatMessageType } from "@/services/types"
 import { cn } from "@/lib/utils"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+
 
 function CodeBlock({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
@@ -30,23 +33,23 @@ function CodeBlock({ code }: { code: string }) {
  * Lightweight renderer: splits content on triple-backtick fences and renders
  * those as code blocks. Everything else is rendered as paragraphs.
  */
-function renderContent(content: string) {
-  const parts = content.split(/```/)
-  return parts.map((part, i) => {
-    if (i % 2 === 1) {
-      // strip an optional leading language identifier line
-      const cleaned = part.replace(/^[a-zA-Z0-9]*\n/, "")
-      return <CodeBlock key={i} code={cleaned.trimEnd()} />
-    }
-    return part.split("\n").map((line, j) =>
-      line.trim() === "" ? null : (
-        <p key={`${i}-${j}`} className="leading-relaxed">
-          {line}
-        </p>
-      ),
-    )
-  })
-}
+// function renderContent(content: string) {
+//   const parts = content.split(/```/)
+//   return parts.map((part, i) => {
+//     if (i % 2 === 1) {
+//       // strip an optional leading language identifier line
+//       const cleaned = part.replace(/^[a-zA-Z0-9]*\n/, "")
+//       return <CodeBlock key={i} code={cleaned.trimEnd()} />
+//     }
+//     return part.split("\n").map((line, j) =>
+//       line.trim() === "" ? null : (
+//         <p key={`${i}-${j}`} className="leading-relaxed">
+//           {line}
+//         </p>
+//       ),
+//     )
+//   })
+// }
 
 export function ChatMessage({ message }: { message: ChatMessageType }) {
   const [showSources, setShowSources] = useState(false)
@@ -72,7 +75,24 @@ export function ChatMessage({ message }: { message: ChatMessageType }) {
               : "rounded-tl-sm border border-border bg-card text-card-foreground",
           )}
         >
-          <div className="flex flex-col gap-1">{renderContent(message.content)}</div>
+          <div className="prose prose-sm dark:prose-invert max-w-none">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                code(props) {
+                  const { children } = props
+
+                  return (
+                    <CodeBlock
+                      code={String(children).replace(/\n$/, "")}
+                    />
+                  )
+                },
+              }}
+            >
+              {message.content}
+            </ReactMarkdown>
+          </div>
         </div>
 
         {!isUser && message.sources && message.sources.length > 0 && (

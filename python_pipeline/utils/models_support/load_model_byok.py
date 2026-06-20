@@ -1,4 +1,4 @@
-from .ModelDictionary.modelDict import giveModelList
+from python_pipeline.utils.models_support.ModelDictionary.modelDict import giveModelList
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic

@@ -11,7 +11,7 @@ import type {
   UserSetupPayload,
 } from "./types"
 
-export const API_BASE_URL = "http://localhost:3000"
+export const API_BASE_URL = "http://localhost:3002"
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -52,6 +52,8 @@ export async function signup(payload: SignupPayload) {
 }
 
 export async function login(payload: LoginPayload) {
+  console.log("Inside login ")
+  console.log(payload)
   const { data } = await api.post("/api/v1/users_nonVecDB/login", payload)
   return data
 }
@@ -59,6 +61,15 @@ export async function login(payload: LoginPayload) {
 export async function changePassword(payload: ChangePasswordPayload) {
   const { data } = await api.post("/api/v1/users_nonVecDB/change_password", payload)
   return data
+}
+
+export async function getSavedRepos(email: string): Promise<string[]> {
+  const { data } = await api.get("/api/v1/users_nonVecDB/saved_repo", {
+    params: { user_id: email },
+  })
+  // Normalize a few possible response shapes into a string[].
+  if (Array.isArray(data?.savedRepos)) return data.savedRepos
+  return []
 }
 
 /* --------------------------------- Models -------------------------------- */
@@ -94,16 +105,6 @@ export async function retrieve(payload: RetrievePayload): Promise<JobResponse> {
   return data
 }
 
-export async function getSavedRepos(email: string): Promise<string[]> {
-  const { data } = await api.get("/api/v1/repo_operation/saved_repo", {
-    params: { user_id: email },
-  })
-  // Normalize a few possible response shapes into a string[].
-  if (Array.isArray(data)) return data as string[]
-  if (Array.isArray(data?.repos)) return data.repos
-  if (Array.isArray(data?.saved_repo)) return data.saved_repo
-  return []
-}
 
 /* --------------------------------- Jobs ---------------------------------- */
 

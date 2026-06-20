@@ -10,8 +10,6 @@ const internalClient = axios.create({
 const worker = new Worker('repo_job',async(job)=>{
     const{endpoint,method, ...payload} = job.data
     console.log(`[${job.name}] job ${job.id} → ${method.toLowerCase()} ${endpoint}`)
-    const strr = "?userId=test_mail@gmail.com"
-    console.log(process.env.FASTAPI_INTERNAL_URL + endpoint+strr)
     await job.updateProgress(10)
 
    const config = {
@@ -25,6 +23,7 @@ const worker = new Worker('repo_job',async(job)=>{
     const response = await internalClient.request(config);
 
     await job.updateProgress(100)
+    console.log(response.data)
     return response.data
 },redis_connection)
 

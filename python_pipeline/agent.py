@@ -32,22 +32,20 @@ def connect_redis_store():
         return r
     except Exception as e:
         raise ValueError("Failed to connect to Redis!!")
-def store_thread_id(user_id,thread_id):
+def store_thread_id(user_id,thread_id,name_collection):
     # store in db
     # if it already exists just return if not then make a new one
     try:
         r = connect_redis_store()
-        exists = r.exists(user_id)
-        if exists == 1:
-            return r.hgetall(user_id)
-        r.hset(user_id,
+        r.hset(f"user{user_id}:indexed_repos",
             mapping={
-                "thread_id":thread_id
+                name_collection: thread_id
             }
         )
+        print(r.hgetall(f"user{user_id}:indexed_repos"))
         print(f"Stored user's thread = {thread_id}")
     except Exception as e:
-        raise RuntimeError("Failed to store user's thread_id")
+        raise RuntimeError(f"Failed to store user's thread_id \n {e}")
 
 def get_user_info(user_id):
     try:
@@ -62,31 +60,35 @@ def get_user_info(user_id):
     except Exception as e:
         raise RuntimeError(f"Failed to retrieve user's info \n {e}")
 
-
-def invoke_agent(user_query,user_id):
+def get_user_thread(user_id):
     try:
-        env_path = "python_pipeline/.env"
-        set_key(env_path,"user_input",user_query)
-        exists = get_user_info(user_id)
-        if exists is None:
-            raise ValueError("User timed out!!")
-        thread_id_exists = exists["thread_id"]
-        if thread_id_exists is None:
+        r = connect_redis_store()
+        user_thread_id_info = r.hgetall(f"user{user_id}:indexed_repos")
+        return user_thread_id_info
+    except Exception as e:
+        raise RuntimeError(f"Failed to retrieve user's info \n {e}")
+
+def invoke_agent(user_query,user_id,name_collection):
+    try:
+        user_info = get_user_info(user_id)
+        user_thread_id_info = get_user_thread(user_id)
+        if user_info is None:
+            raise ValueError("User not initialized!!")
+        if name_collection not in user_thread_id_info:
             thread_id = str(uuid7())
-            store_thread_id(
-                user_id,
-                thread_id
-            )
+            store_thread_id(user_id,thread_id,name_collection)
+            print("New session initialized !!")
         else:
-            thread_id = exists["thread_id"]
+            thread_id = user_thread_id_info[name_collection]
+            print("Continue old session")
             
-        ollama_flag_string = exists["ollama_flag"]
+        ollama_flag_string = user_info["ollama_flag"]
         if ollama_flag_string == "True":
             ollama_flag = True
         else:
             ollama_flag = False       
-        model_name = exists["model_name"]
-        api_key = exists["api_key"]
+        model_name = user_info["model_name"]
+        api_key = user_info["api_key"]
 
         config = {
             "configurable": {
@@ -379,12 +381,12 @@ def invoke_agent(user_query,user_id):
         )
 
 if __name__ == "__main__":
-    user_query = "what does it have in footer ?"
+    user_query = "Hi what is my name?"
     user_id = "test_mail@gmail.com"
     ollama_flag = False
     model_name = "gemini-3.1-flash-lite"
     api_key = "AIzaSyBH92BNIRgjRIxKKlXxRcU6QsUVfFI9f_0"
-    response = invoke_agent(user_query,user_id)
+    response = invoke_agent(user_query,user_id,"SmilingDev_Test1")
     print(response)
   
 

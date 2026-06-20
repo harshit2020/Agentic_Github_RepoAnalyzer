@@ -69,7 +69,7 @@ export default function Chat() {
     requestAnimationFrame(autoGrow)
 
     try {
-      const { jobID } = await retrieve({ user_id: user.email, user_query: query })
+      const { jobID } = await retrieve({ user_id: user.email, user_query: query, repo_url: currentRepo })
       const result = (await poll(jobID)) as { answer?: string; sources?: ChatSource[] } | string
 
       const answer =

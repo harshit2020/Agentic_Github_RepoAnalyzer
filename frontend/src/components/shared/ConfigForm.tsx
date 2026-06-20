@@ -14,11 +14,13 @@ interface ConfigFormProps {
 }
 
 function ModeToggle({
+  idPrefix,
   value,
   onChange,
   cloudLabel = "Cloud",
   localLabel = "Local",
 }: {
+  idPrefix: string
   value: "cloud" | "local"
   onChange: (v: "cloud" | "local") => void
   cloudLabel?: string
@@ -38,13 +40,13 @@ function ModeToggle({
       ).map(({ v, label, icon: Icon }) => (
         <Label
           key={v}
-          htmlFor={`mode-${label}`}
+          htmlFor={`${idPrefix}-${v}`}
           className={cn(
             "flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors",
             value === v ? "border-primary bg-primary/10" : "border-border hover:bg-secondary/60",
           )}
         >
-          <RadioGroupItem value={v} id={`mode-${label}`} className="sr-only" />
+          <RadioGroupItem value={v} id={`${idPrefix}-${v}`} className="sr-only" />
           <Icon className={cn("h-4 w-4", value === v ? "text-primary" : "text-muted-foreground")} />
           <span className="text-sm font-medium">{label}</span>
         </Label>
@@ -84,6 +86,7 @@ export function ConfigForm({ config, onChange, modelNames, loadingModels }: Conf
         </div>
 
         <ModeToggle
+          idPrefix="model"
           value={modelMode}
           cloudLabel="Cloud"
           localLabel="Local (Ollama)"
@@ -196,7 +199,7 @@ export function ConfigForm({ config, onChange, modelNames, loadingModels }: Conf
           <p className="text-xs text-muted-foreground">Where your repository embeddings are stored.</p>
         </div>
 
-        <ModeToggle value={dbMode} onChange={(v) => onChange({ db_flag: v === "cloud" })} />
+        <ModeToggle idPrefix="db" value={dbMode} onChange={(v) => onChange({ db_flag: v === "cloud" })} />
 
         {dbMode === "cloud" ? (
           <div className="grid gap-4 sm:grid-cols-2">
