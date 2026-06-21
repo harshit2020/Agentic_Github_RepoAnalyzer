@@ -93,11 +93,11 @@ export default function Profile() {
         <div className="grid gap-6">
           {/* Account info */}
           <Card className="border border-border/50 bg-gradient-to-b from-card to-card/95 shadow-lg">
-            <CardHeader className="border-b border-border/30 pb-5">
+            <CardHeader className="border-b border-border/30 px-8 pt-8 pb-5">
               <CardTitle>Account</CardTitle>
               <CardDescription className="mt-1">Your profile details.</CardDescription>
             </CardHeader>
-            <CardContent className="pt-8 pb-8">
+            <CardContent className="px-8 pt-8 pb-8">
               <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
                 <div className="relative">
                   <Avatar className="h-16 w-16 border border-border">
@@ -155,14 +155,14 @@ export default function Profile() {
 
           {/* Change password */}
           <Card className="border border-border/50 bg-gradient-to-b from-card to-card/95 shadow-lg">
-            <CardHeader className="border-b border-border/30 pb-5">
+            <CardHeader className="border-b border-border/30 px-8 pt-8 pb-5">
               <CardTitle className="flex items-center gap-2">
                 <KeyRound className="h-4 w-4 text-primary" />
                 Change Password
               </CardTitle>
               <CardDescription className="mt-1">Use a strong password you don&apos;t reuse elsewhere.</CardDescription>
             </CardHeader>
-            <CardContent className="pt-8">
+            <CardContent className="px-8 pt-8 pb-8">
               <form onSubmit={submit} className="grid gap-5">
                 <div className="grid gap-2">
                   <Label htmlFor="current">Current password</Label>
@@ -174,8 +174,8 @@ export default function Profile() {
                     autoComplete="current-password"
                   />
                 </div>
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <div className="grid gap-2">
+                <div className="grid gap-5 sm:grid-cols-2 w-full">
+                  <div className="grid gap-2 w-full">
                     <Label htmlFor="next">New password</Label>
                     <Input
                       id="next"
@@ -185,7 +185,7 @@ export default function Profile() {
                       autoComplete="new-password"
                     />
                   </div>
-                  <div className="grid gap-2">
+                  <div className="grid gap-2 w-full">
                     <Label htmlFor="confirm">Confirm new password</Label>
                     <Input
                       id="confirm"

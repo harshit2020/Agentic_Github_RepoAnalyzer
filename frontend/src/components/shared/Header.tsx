@@ -44,25 +44,25 @@ export function Header() {
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>
+              <DropdownMenuLabel className="px-3 py-3">
                 <div className="flex flex-col">
                   <span className="truncate text-sm font-medium">{user.username}</span>
                   <span className="truncate text-xs font-normal text-muted-foreground">{user.email}</span>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => navigate("/profile")}>
+              <DropdownMenuItem className="px-3 py-2" onSelect={() => navigate("/profile")}>
                 <UserIcon className="text-muted-foreground" />
                 Profile
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => navigate("/settings")}>
+              <DropdownMenuItem className="px-3 py-2" onSelect={() => navigate("/settings")}>
                 <SettingsIcon className="text-muted-foreground" />
                 Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
+                className="px-3 py-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
                 onSelect={handleLogout}
-                className="text-destructive focus:bg-destructive/10 focus:text-destructive"
               >
                 <LogOut />
                 Logout

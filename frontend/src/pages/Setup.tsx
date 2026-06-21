@@ -176,11 +176,11 @@ export default function Setup() {
 
           {step === 0 ? (
             <Card className="border border-border/50 bg-gradient-to-b from-card to-card/95 shadow-xl">
-              <CardHeader className="border-b border-border/30 pb-6">
+              <CardHeader className="border-b border-border/30 px-8 pt-8 pb-6">
                 <CardTitle className="text-2xl">Configure your environment</CardTitle>
                 <CardDescription className="mt-2 text-base">Set up your model and vector database before indexing a repo.</CardDescription>
               </CardHeader>
-              <CardContent className="grid gap-8 pt-10 pb-8">
+              <CardContent className="grid gap-8 px-8 pt-8 pb-8">
                 <ConfigForm
                   config={config}
                   onChange={onChange}
@@ -197,11 +197,11 @@ export default function Setup() {
             </Card>
           ) : (
             <Card className="border border-border/50 bg-gradient-to-b from-card to-card/95 shadow-xl">
-              <CardHeader className="border-b border-border/30 pb-6">
+              <CardHeader className="border-b border-border/30 px-8 pt-8 pb-6">
                 <CardTitle className="text-2xl">Index a repository</CardTitle>
                 <CardDescription className="mt-2 text-base">Paste a public GitHub repository URL to analyze.</CardDescription>
               </CardHeader>
-              <CardContent className="grid gap-8 pt-10 pb-8">
+              <CardContent className="grid gap-8 px-8 pt-8 pb-8">
                 <div className="grid gap-3">
                   <Label htmlFor="repo" className="text-sm font-semibold">GitHub Repository URL</Label>
                   <div className="relative">

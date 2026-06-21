@@ -51,9 +51,9 @@ const registerUser = asyncHandler(async(req,res)=>{
     if(req.files&&Array.isArray(req.files.coverImage)&&req.files.coverImage.length>0){
         coverImagePath = req.files.coverImage[0].path
     }
-    if(!avatarPath){
-        throw new ApiError("400","Avatar is necessary!!!")
-    }
+    // if(!avatarPath){
+    //     throw new ApiError("400","Avatar is necessary!!!")
+    // }
     //upload to cloudinart
     const avatarOnCloudinary = await uploadOnCloudinary(avatarPath)
 

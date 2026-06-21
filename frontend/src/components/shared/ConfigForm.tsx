@@ -94,7 +94,7 @@ export function ConfigForm({ config, onChange, modelNames, loadingModels }: Conf
         />
 
         {modelMode === "cloud" ? (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 w-full">
             <Field label="Model Name">
               <Select value={config.modelName} onValueChange={(v) => onChange({ modelName: v })}>
                 <SelectTrigger>
@@ -119,7 +119,7 @@ export function ConfigForm({ config, onChange, modelNames, loadingModels }: Conf
             </Field>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 w-full">
             <Field label="Model Name">
               <Select value={config.modelName} onValueChange={(v) => onChange({ modelName: v })}>
                 <SelectTrigger>
@@ -202,7 +202,7 @@ export function ConfigForm({ config, onChange, modelNames, loadingModels }: Conf
         <ModeToggle idPrefix="db" value={dbMode} onChange={(v) => onChange({ db_flag: v === "cloud" })} />
 
         {dbMode === "cloud" ? (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 w-full">
             <Field label="Chroma API Key">
               <Input
                 type="password"
@@ -224,7 +224,7 @@ export function ConfigForm({ config, onChange, modelNames, loadingModels }: Conf
             </Field>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 w-full">
             <Field label="DB Host">
               <Input value={config.db_host} onChange={(e) => onChange({ db_host: e.target.value })} />
             </Field>
