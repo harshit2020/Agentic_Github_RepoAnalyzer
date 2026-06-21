@@ -89,6 +89,10 @@ export default function Settings() {
     persist()
   }
 
+  console.log("savedConfig", savedConfig)
+  console.log("config", config)
+  console.log("ollama_flag", config.ollama_flag)
+  console.log("modelName", config.modelName)
   return (
     <Layout>
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">

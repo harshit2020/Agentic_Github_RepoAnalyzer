@@ -40,8 +40,10 @@ export default function Login() {
         const hasSetup = Boolean(config && (config.modelName || config.db_flag !== undefined))
 
         if (hasSetup) {
+
           setConfig(config as SetupConfig)
           if (setup?.repo_url) {
+          
             setCurrentRepo(setup.repo_url)
             setIndexedRepos([setup.repo_url])
           }
@@ -63,7 +65,7 @@ export default function Login() {
       setLoading(false)
     }
   }
-
+  
   return (
     <AuthShell title="Welcome back" subtitle="Sign in to analyze and chat with your repositories.">
       <Card className="border-border/80 bg-card/70 backdrop-blur">

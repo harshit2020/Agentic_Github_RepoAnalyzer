@@ -95,3 +95,14 @@ export interface ChatMessage {
   sources?: ChatSource[]
   timestamp?: number
 }
+
+export interface RepoCheckPayload {
+  repo_url: string,
+  user_id: string | undefined
+}
+
+export interface RepoCheckResponse {
+  exists: boolean
+  repo_id?: string
+  repo_url?: string
+}

@@ -46,6 +46,16 @@ def get_redis_setup(user_id):
     try:
         r = connect_redis_store()
         user_info = r.hgetall(user_id)
+        user_info["modelName"] = user_info.pop("model_name")
+        if user_info["db_flag"] == "True":
+            user_info["db_flag"] = True
+        else:
+            user_info["db_flag"] = False
+        if user_info["ollama_flag"] == "True":
+            user_info["ollama_flag"] = True
+        else:
+            user_info["ollama_flag"] = False
+        print(user_info)
         return user_info
     except Exception as e:
         raise ValueError(f"Error occured while getting user_setup (REDIS) \n {e}")
@@ -53,10 +63,26 @@ def get_redis_setup(user_id):
 def get_indexed_repos(user_id):
     try:
         r = connect_redis_store()
-        user_indexed_repos = r.hgetall(f"user{user_id}:indexed_repos")
+        user_indexed_repos = r.hkeys(f"user{user_id}:indexed_repos")
         return user_indexed_repos
     except Exception as e:
         raise ValueError(f"Error occured while getting indexed repos \n {e}")
+
+def check_existing_repo(repo_url,user_id):
+    try:
+        r = connect_redis_store()
+        user_indexed_repos = r.hkeys(f"user{user_id}:indexed_repos")
+        parts = repo_url.rstrip("/").split("/")
+        repo_id = parts[-2]
+        repo_name = parts[-1]
+        name_collection = f"{repo_id}_{repo_name}"
+        if name_collection in user_indexed_repos:
+            return True
+        else:
+            return False
+    except Exception as e:
+        raise ValueError(f"Error occured while getting indexed repos \n {e}")
+
 def setUserIdInEnv(user_id):
     
     try:

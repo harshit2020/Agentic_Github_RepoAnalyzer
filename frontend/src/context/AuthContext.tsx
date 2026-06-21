@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 import type { SetupConfig, User } from "@/services/types"
-
+import { getIndexedRepos } from "@/services/api"
 interface AuthContextValue {
   user: User | null
   isSetupComplete: boolean
@@ -23,9 +23,6 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 const STORAGE = {
   user: "ra_user",
   setup: "ra_setup_complete",
-  currentRepo: "ra_current_repo",
-  indexedRepos: "ra_indexed_repos",
-  config: "ra_config",
 }
 
 function readJSON<T>(key: string, fallback: T): T {
@@ -38,20 +35,43 @@ function readJSON<T>(key: string, fallback: T): T {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => readJSON<User | null>(STORAGE.user, null))
+  console.log("AUTH PROVIDER RENDER")
+  const [user, setUser] = useState<User | null>(
+    () => readJSON<User | null>(STORAGE.user, null),
+  )
+
   const [isSetupComplete, setIsSetupComplete] = useState<boolean>(
     () => readJSON<boolean>(STORAGE.setup, false),
   )
-  const [currentRepo, setCurrentRepoState] = useState<string | null>(
-    () => readJSON<string | null>(STORAGE.currentRepo, null),
-  )
-  const [indexedRepos, setIndexedReposState] = useState<string[]>(
-    () => readJSON<string[]>(STORAGE.indexedRepos, []),
-  )
-  const [config, setConfigState] = useState<SetupConfig | null>(
-    () => readJSON<SetupConfig | null>(STORAGE.config, null),
-  )
 
+  const [currentRepo, setCurrentRepoState] =
+    useState<string | null>(null)
+
+  const [indexedRepos, setIndexedReposState] =
+    useState<string[]>([])
+
+  const [config, setConfigState] =
+    useState<SetupConfig | null>(null)
+
+
+  useEffect(() => {
+    if (!user?.email) return
+
+    const loadData = async () => {
+      try {
+        const repos = await getIndexedRepos(user.email)
+        setIndexedReposState(repos)
+
+        if (repos.length > 0 && !currentRepo) {
+          setCurrentRepoState(repos[0])
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    loadData()
+  }, [user])
   // Persist to localStorage on change.
   useEffect(() => {
     if (user) localStorage.setItem(STORAGE.user, JSON.stringify(user))
@@ -59,22 +79,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE.setup, JSON.stringify(isSetupComplete))
+    console.log("SETUP CHANGED", isSetupComplete)
   }, [isSetupComplete])
 
   useEffect(() => {
-    if (currentRepo) localStorage.setItem(STORAGE.currentRepo, JSON.stringify(currentRepo))
-    else localStorage.removeItem(STORAGE.currentRepo)
-  }, [currentRepo])
+    localStorage.setItem(STORAGE.setup, JSON.stringify(isSetupComplete))
+  }, [isSetupComplete])
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE.indexedRepos, JSON.stringify(indexedRepos))
-  }, [indexedRepos])
-
-  useEffect(() => {
-    if (config) localStorage.setItem(STORAGE.config, JSON.stringify(config))
-    else localStorage.removeItem(STORAGE.config)
-  }, [config])
+  console.log("AUTH CONTEXT")
+  console.log("user", user)
+  console.log("isSetupComplete", isSetupComplete)
 
   const value = useMemo<AuthContextValue>(
     () => ({

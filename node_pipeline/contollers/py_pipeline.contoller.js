@@ -32,13 +32,22 @@ const get_model_names = asyncHandler(async(req, res) => {
 
 const get_indexed_repos = asyncHandler(async(req,res)=>{
     try{
-        const {user_id} = req.query
+        const {user_id} = req.body
         const url = process.env.FASTAPI_INTERNAL_URL+"/api/v1/user_indexed_repos"
-        const response = await axios.get(url,{
-            params:{
-                user_id
-            }
-        })
+        const response = await axios.post(url,{user_id})
+        console.log(response.data)
+        return res.json(response.data)
+    }
+    catch(error){
+        throw new ApiError(500,`Failed to get indexed repos as ${error}`)
+    }
+})
+
+const check_indexed_repos = asyncHandler(async(req,res)=>{
+    try{
+        const {user_id,repo_url} = req.body
+        const url = process.env.FASTAPI_INTERNAL_URL+"/api/v1/check_indexed_repos"
+        const response = await axios.post(url,{user_id, repo_url})
         console.log(response.data)
         return res.json(response.data)
     }
@@ -50,5 +59,6 @@ const get_indexed_repos = asyncHandler(async(req,res)=>{
 export{
     get_user_setup,
     get_model_names,
-    get_indexed_repos
+    get_indexed_repos,
+    check_indexed_repos
 }

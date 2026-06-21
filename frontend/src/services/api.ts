@@ -9,6 +9,8 @@ import type {
   RetrievePayload,
   SignupPayload,
   UserSetupPayload,
+  RepoCheckPayload,
+  RepoCheckResponse,
 } from "./types"
 
 export const API_BASE_URL = "http://localhost:3002"
@@ -102,6 +104,17 @@ export async function indexRepo(payload: IndexPayload): Promise<JobResponse> {
 
 export async function retrieve(payload: RetrievePayload): Promise<JobResponse> {
   const { data } = await api.post<JobResponse>("/api/v1/repo_operation/retrieve", payload)
+  return data
+}
+
+export async function getIndexedRepos(user_id: string) {
+  console.log(`GETINDEXEDREPOS =${user_id}`)
+  const { data } = await api.post("/api/v1/repo_operation/user_indexed_repos", {user_id})
+  return data
+}
+
+export async function checkRepo(payload: RepoCheckPayload,): Promise<RepoCheckResponse> {
+  const { data } = await api.post("/api/v1/repo_operation/checkExistingRepo", payload)
   return data
 }
 

@@ -3,13 +3,23 @@ import { toast } from "sonner"
 import { AlertTriangle, Check, FolderGit2, Github, Loader2, RefreshCw } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import { usePollJob } from "@/hooks/usePollJob"
-import { extractErrorMessage, indexRepo, saveUserSetup } from "@/services/api"
+import { extractErrorMessage, indexRepo, saveUserSetup, checkRepo } from "@/services/api"
 import type { JobStatus } from "@/services/types"
 import { shortRepoName } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 /** Sidebar showing the active repo + change/index controls. */
 export function RepoSidebar() {
@@ -30,6 +40,8 @@ export function RepoSidebar() {
   const [progress, setProgress] = useState(0)
   const [jobState, setJobState] = useState<JobStatus["state"] | null>(null)
 
+  const [showReindexDialog, setShowReindexDialog] = useState(false)
+  const [pendingRepo, setPendingRepo] = useState("")
   // Did the user change the vector DB in settings since these repos were indexed?
   const vectorDbChanged = Boolean(config?.dbChanged)
 
@@ -68,21 +80,45 @@ export function RepoSidebar() {
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!repoUrl.trim()) {
       toast.error("Please enter a repository URL.")
       return
     }
-    if (vectorDbChanged) {
-      toast.warning("Vector DB was changed. All indexed repos will be cleared.", {
-        action: {
-          label: "Continue",
-          onClick: () => runIndex(repoUrl.trim()),
-        },
+
+    try {
+      const result = await checkRepo({
+        repo_url: repoUrl.trim(),
+        user_id : user?.email
       })
-      return
+
+      if (result.exists) {
+        setPendingRepo(repoUrl.trim())
+        setShowReindexDialog(true)
+        return
+      }
+
+      if (vectorDbChanged) {
+        toast.warning(
+          "Vector DB was changed. All indexed repos will be cleared.",
+          {
+            action: {
+              label: "Continue",
+              onClick: () => runIndex(repoUrl.trim()),
+            },
+          },
+        )
+
+        return
+      }
+
+      runIndex(repoUrl.trim())
+    } catch (err) {
+      toast.error(
+        extractErrorMessage(err) ||
+        "Failed to verify repository."
+      )
     }
-    runIndex(repoUrl.trim())
   }
 
   const hasRepo = Boolean(currentRepo)
@@ -109,7 +145,7 @@ export function RepoSidebar() {
           </div>
           <Button variant="outline" size="sm" onClick={() => setMode("change")}>
             <RefreshCw />
-            Change Repo
+            Index New Repo
           </Button>
         </div>
       ) : (
@@ -177,9 +213,9 @@ export function RepoSidebar() {
         </div>
       )}
 
-      {indexedRepos.length > 1 && (
+      {indexedRepos.length > 0 && (
         <div className="grid gap-1.5">
-          <span className="text-xs font-medium text-muted-foreground">All indexed</span>
+          <span className="text-xs font-medium text-muted-foreground">Indexed Repositories</span>
           {indexedRepos.map((r) => (
             <button
               key={r}
@@ -194,6 +230,43 @@ export function RepoSidebar() {
           ))}
         </div>
       )}
+      <AlertDialog
+        open={showReindexDialog}
+        onOpenChange={setShowReindexDialog}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Repository already indexed
+            </AlertDialogTitle>
+
+            <AlertDialogDescription>
+              This repository already exists in your indexed repositories.
+              Would you like to re-index it?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setCurrentRepo(pendingRepo)
+                setShowReindexDialog(false)
+              }}
+            >
+              Use Existing
+            </AlertDialogCancel>
+
+            <AlertDialogAction
+              onClick={() => {
+                runIndex(pendingRepo)
+                setShowReindexDialog(false)
+              }}
+            >
+              Re-index
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </aside>
   )
 }

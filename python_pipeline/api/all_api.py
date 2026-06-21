@@ -1,7 +1,7 @@
 # /api/v1/db_setup , /api/v1/ollama_setup , /api/v1/user_setup , /api/v1/indexer , /api/v1/ai_retrieval_query
 from fastapi import FastAPI
 from pydantic import BaseModel
-from python_pipeline.utils.redis.redis_setup import redis_setup, get_indexed_repos,get_redis_setup,setUserIdInEnv,setRepoName
+from python_pipeline.utils.redis.redis_setup import redis_setup, get_indexed_repos,get_redis_setup,setUserIdInEnv,setRepoName,check_existing_repo
 from python_pipeline.utils.models_support.ollama_setup import validate_and_save_env_updating_ollama
 from python_pipeline.utils.vectorDB.chroma_setup import *
 from python_pipeline.agent import invoke_agent 
@@ -54,6 +54,13 @@ class Indexer(BaseModel):
 class GetRedis(BaseModel):
     user_id : str
 
+class IndexedRepoList(BaseModel):
+    user_id:str
+
+class RepoIndexed(BaseModel):
+    user_id:str
+    repo_url:str
+
 @app.post("/api/v1/db_setup_online")
 async def wrapper_validate_and_save_env_updating_chroma_online(chromaonline: ChromaOnline):
     validate_and_save_env_updating_chroma_online(chromaonline.CHROMA_TENANT,chromaonline.CHROMA_DATABASE , chromaonline.CHROMA_API_KEY,chromaonline.CHROMA_HOST,chromaonline.user_id)
@@ -102,13 +109,16 @@ async def wrapper_get_redis_setup(user_id:str):
         }
     }
 
-@app.get("/api/v1/user_indexed_repos")
-async def wrapper_get_indexed_repos(user_id:str):
-    indexed_repos =  get_indexed_repos(user_id)
+@app.post("/api/v1/user_indexed_repos")
+async def wrapper_get_indexed_repos(indexrepolist: IndexedRepoList):
+    indexed_repos =  get_indexed_repos(indexrepolist.user_id)
+    return indexed_repos
+
+@app.post("/api/v1/check_indexed_repos")
+async def wrapper_check_existing_repo(checkindexedrepo :RepoIndexed):
+    bool_indexed_repo =  check_existing_repo(checkindexedrepo.repo_url,checkindexedrepo.user_id)
     return{
-        "success": True,
-        "message": "User Indexed fetched",
-        "indexed_repos": indexed_repos,
+        "exists": bool_indexed_repo,
     }
 
 @app.post("/api/v1/repo_operation/index")
