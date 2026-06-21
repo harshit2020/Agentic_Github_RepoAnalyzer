@@ -68,11 +68,11 @@ export default function Login() {
   
   return (
     <AuthShell title="Welcome back" subtitle="Sign in to analyze and chat with your repositories.">
-      <Card className="border-border/80 bg-card/70 backdrop-blur">
-        <CardContent className="pt-6">
-          <form onSubmit={handleSubmit} className="grid gap-4">
-            <div className="grid gap-1.5">
-              <Label htmlFor="email">Email</Label>
+      <Card className="border border-border/50 bg-gradient-to-b from-card to-card/95 shadow-2xl backdrop-blur-xl w-full">
+        <CardContent className="pt-10 pb-10 px-8">
+          <form onSubmit={handleSubmit} className="grid gap-6">
+            <div className="grid gap-3">
+              <Label htmlFor="email" className="text-sm font-medium">Email address</Label>
               <Input
                 id="email"
                 type="email"
@@ -80,10 +80,11 @@ export default function Login() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="h-10 text-sm"
               />
             </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="password">Password</Label>
+            <div className="grid gap-3">
+              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -91,20 +92,23 @@ export default function Login() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                className="h-10 text-sm"
               />
             </div>
-            <Button type="submit" className="mt-2 w-full" disabled={loading}>
-              {loading && <Loader2 className="animate-spin" />}
+            <Button type="submit" className="mt-2 h-10 w-full font-medium" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {loading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            {"Don't have an account? "}
-            <Link to="/signup" className="font-medium text-primary hover:underline">
-              Sign up
-            </Link>
-          </p>
+          <div className="mt-6 border-t border-border/30 pt-6">
+            <p className="text-center text-sm text-muted-foreground">
+              {"Don't have an account? "}
+              <Link to="/signup" className="font-semibold text-primary hover:text-primary/80 transition-colors">
+                Sign up
+              </Link>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </AuthShell>

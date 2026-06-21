@@ -89,20 +89,16 @@ export default function Settings() {
     persist()
   }
 
-  console.log("savedConfig", savedConfig)
-  console.log("config", config)
-  console.log("ollama_flag", config.ollama_flag)
-  console.log("modelName", config.modelName)
   return (
     <Layout>
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-          <p className="text-sm text-muted-foreground">Update your model and vector database configuration.</p>
+      <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+          <p className="mt-2 text-base text-muted-foreground">Update your model and vector database configuration.</p>
         </div>
 
         {dbWillChange && (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-5 text-sm text-destructive">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <p className="leading-relaxed">
               You&apos;ve modified the vector database configuration. Saving will clear all indexed repositories,
@@ -111,12 +107,12 @@ export default function Settings() {
           </div>
         )}
 
-        <Card>
-          <CardHeader>
+        <Card className="border border-border/50 bg-gradient-to-b from-card to-card/95 shadow-lg">
+          <CardHeader className="border-b border-border/30 pb-6">
             <CardTitle>Configuration</CardTitle>
-            <CardDescription>These settings apply to all future indexing and retrieval.</CardDescription>
+            <CardDescription className="mt-1">These settings apply to all future indexing and retrieval.</CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-8">
+          <CardContent className="grid gap-8 pt-10 pb-8">
             <ConfigForm
               config={config}
               onChange={onChange}

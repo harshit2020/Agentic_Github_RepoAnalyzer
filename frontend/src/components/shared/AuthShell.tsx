@@ -11,13 +11,13 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
         <div className="absolute bottom-[-15%] right-[5%] h-[360px] w-[360px] rounded-full bg-primary/10 blur-[120px]" />
       </div>
 
-      <div className="relative w-full max-w-md">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary">
-            <Boxes className="h-7 w-7" />
+      <div className="relative w-full max-w-lg">
+        <div className="mb-12 flex flex-col items-center text-center">
+          <span className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 text-primary">
+            <Boxes className="h-8 w-8" />
           </span>
-          <h1 className="text-2xl font-semibold tracking-tight text-balance">{title}</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground text-pretty">{subtitle}</p>
+          <h1 className="text-4xl font-bold tracking-tight text-balance text-foreground">{title}</h1>
+          <p className="mt-3 text-base text-muted-foreground text-pretty leading-relaxed">{subtitle}</p>
         </div>
         {children}
       </div>

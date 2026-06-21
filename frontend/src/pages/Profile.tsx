@@ -84,20 +84,20 @@ export default function Profile() {
 
   return (
     <Layout>
-      <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
-          <p className="text-sm text-muted-foreground">Manage your account information and security.</p>
+      <div className="mx-auto max-w-2xl px-6 py-12 sm:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+          <p className="mt-2 text-base text-muted-foreground">Manage your account information and security.</p>
         </div>
 
         <div className="grid gap-6">
           {/* Account info */}
-          <Card>
-            <CardHeader>
+          <Card className="border border-border/50 bg-gradient-to-b from-card to-card/95 shadow-lg">
+            <CardHeader className="border-b border-border/30 pb-5">
               <CardTitle>Account</CardTitle>
-              <CardDescription>Your profile details.</CardDescription>
+              <CardDescription className="mt-1">Your profile details.</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-8 pb-8">
               <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
                 <div className="relative">
                   <Avatar className="h-16 w-16 border border-border">
@@ -154,17 +154,17 @@ export default function Profile() {
           </Card>
 
           {/* Change password */}
-          <Card>
-            <CardHeader>
+          <Card className="border border-border/50 bg-gradient-to-b from-card to-card/95 shadow-lg">
+            <CardHeader className="border-b border-border/30 pb-5">
               <CardTitle className="flex items-center gap-2">
                 <KeyRound className="h-4 w-4 text-primary" />
                 Change Password
               </CardTitle>
-              <CardDescription>Use a strong password you don&apos;t reuse elsewhere.</CardDescription>
+              <CardDescription className="mt-1">Use a strong password you don&apos;t reuse elsewhere.</CardDescription>
             </CardHeader>
-            <CardContent>
-              <form onSubmit={submit} className="grid gap-4">
-                <div className="grid gap-1.5">
+            <CardContent className="pt-8">
+              <form onSubmit={submit} className="grid gap-5">
+                <div className="grid gap-2">
                   <Label htmlFor="current">Current password</Label>
                   <Input
                     id="current"
@@ -174,8 +174,8 @@ export default function Profile() {
                     autoComplete="current-password"
                   />
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="grid gap-1.5">
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div className="grid gap-2">
                     <Label htmlFor="next">New password</Label>
                     <Input
                       id="next"
@@ -185,7 +185,7 @@ export default function Profile() {
                       autoComplete="new-password"
                     />
                   </div>
-                  <div className="grid gap-1.5">
+                  <div className="grid gap-2">
                     <Label htmlFor="confirm">Confirm new password</Label>
                     <Input
                       id="confirm"

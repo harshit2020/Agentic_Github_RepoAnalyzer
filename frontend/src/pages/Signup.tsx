@@ -44,21 +44,22 @@ export default function Signup() {
 
   return (
     <AuthShell title="Create your account" subtitle="Start indexing repositories and chatting with your code.">
-      <Card className="border-border/80 bg-card/70 backdrop-blur">
-        <CardContent className="pt-6">
-          <form onSubmit={handleSubmit} className="grid gap-4">
-            <div className="grid gap-1.5">
-              <Label htmlFor="username">Username</Label>
+      <Card className="border border-border/50 bg-gradient-to-b from-card to-card/95 shadow-2xl backdrop-blur-xl w-full">
+        <CardContent className="pt-10 pb-10 px-8">
+          <form onSubmit={handleSubmit} className="grid gap-6">
+            <div className="grid gap-3">
+              <Label htmlFor="username" className="text-sm font-medium">Username</Label>
               <Input
                 id="username"
                 placeholder="janedoe"
                 autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                className="h-10 text-sm"
               />
             </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="email">Email</Label>
+            <div className="grid gap-3">
+              <Label htmlFor="email" className="text-sm font-medium">Email address</Label>
               <Input
                 id="email"
                 type="email"
@@ -66,10 +67,11 @@ export default function Signup() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="h-10 text-sm"
               />
             </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="password">Password</Label>
+            <div className="grid gap-3">
+              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -77,10 +79,11 @@ export default function Signup() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                className="h-10 text-sm"
               />
             </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="confirm">Confirm Password</Label>
+            <div className="grid gap-3">
+              <Label htmlFor="confirm" className="text-sm font-medium">Confirm Password</Label>
               <Input
                 id="confirm"
                 type="password"
@@ -89,21 +92,24 @@ export default function Signup() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 aria-invalid={passwordMismatch}
+                className="h-10 text-sm"
               />
-              {passwordMismatch && <p className="text-xs text-destructive">Passwords do not match.</p>}
+              {passwordMismatch && <p className="text-xs text-destructive mt-2">Passwords do not match.</p>}
             </div>
-            <Button type="submit" className="mt-2 w-full" disabled={loading || passwordMismatch}>
-              {loading && <Loader2 className="animate-spin" />}
+            <Button type="submit" className="mt-2 h-10 w-full font-medium" disabled={loading || passwordMismatch}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {loading ? "Creating account..." : "Sign up"}
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            {"Already have an account? "}
-            <Link to="/login" className="font-medium text-primary hover:underline">
-              Sign in
-            </Link>
-          </p>
+          <div className="mt-6 border-t border-border/30 pt-6">
+            <p className="text-center text-sm text-muted-foreground">
+              {"Already have an account? "}
+              <Link to="/login" className="font-semibold text-primary hover:text-primary/80 transition-colors">
+                Sign in
+              </Link>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </AuthShell>

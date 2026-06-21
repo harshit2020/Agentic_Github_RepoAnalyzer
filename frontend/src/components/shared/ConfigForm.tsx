@@ -42,13 +42,13 @@ function ModeToggle({
           key={v}
           htmlFor={`${idPrefix}-${v}`}
           className={cn(
-            "flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors",
-            value === v ? "border-primary bg-primary/10" : "border-border hover:bg-secondary/60",
+            "flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 transition-all font-medium",
+            value === v ? "border-primary bg-primary/10 shadow-md" : "border-border/50 hover:border-border hover:bg-muted/50",
           )}
         >
           <RadioGroupItem value={v} id={`${idPrefix}-${v}`} className="sr-only" />
-          <Icon className={cn("h-4 w-4", value === v ? "text-primary" : "text-muted-foreground")} />
-          <span className="text-sm font-medium">{label}</span>
+          <Icon className={cn("h-5 w-5", value === v ? "text-primary" : "text-muted-foreground")} />
+          <span className="text-sm">{label}</span>
         </Label>
       ))}
     </RadioGroup>
@@ -63,8 +63,8 @@ function Field({
   children: React.ReactNode
 }) {
   return (
-    <div className="grid gap-1.5">
-      <Label>{label}</Label>
+    <div className="grid gap-3">
+      <Label className="text-sm font-medium">{label}</Label>
       {children}
     </div>
   )
@@ -77,12 +77,12 @@ export function ConfigForm({ config, onChange, modelNames, loadingModels }: Conf
   const num = (v: string) => (v === "" ? 0 : Number(v))
 
   return (
-    <div className="grid gap-8">
+    <div className="grid gap-10">
       {/* Section A — Model */}
-      <section className="grid gap-4">
+      <section className="grid gap-5">
         <div>
-          <h3 className="text-sm font-semibold">Model Configuration</h3>
-          <p className="text-xs text-muted-foreground">Choose a hosted cloud model or a local Ollama instance.</p>
+          <h3 className="text-base font-bold text-foreground">Model Configuration</h3>
+          <p className="mt-1.5 text-sm text-muted-foreground">Choose a hosted cloud model or a local Ollama instance.</p>
         </div>
 
         <ModeToggle
@@ -190,13 +190,13 @@ export function ConfigForm({ config, onChange, modelNames, loadingModels }: Conf
         )}
       </section>
 
-      <div className="h-px bg-border" />
+      <div className="h-px bg-border/20" />
 
       {/* Section B — Vector DB */}
-      <section className="grid gap-4">
+      <section className="grid gap-5">
         <div>
-          <h3 className="text-sm font-semibold">Vector DB Configuration</h3>
-          <p className="text-xs text-muted-foreground">Where your repository embeddings are stored.</p>
+          <h3 className="text-base font-bold text-foreground">Vector DB Configuration</h3>
+          <p className="mt-1.5 text-sm text-muted-foreground">Where your repository embeddings are stored.</p>
         </div>
 
         <ModeToggle idPrefix="db" value={dbMode} onChange={(v) => onChange({ db_flag: v === "cloud" })} />

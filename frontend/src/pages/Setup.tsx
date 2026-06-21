@@ -139,76 +139,76 @@ export default function Setup() {
           <div className="absolute left-1/2 top-[-20%] h-[420px] w-[640px] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]" />
         </div>
 
-        <div className="relative mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        <div className="relative mx-auto max-w-3xl px-6 py-14 sm:px-8">
           {/* Step indicator */}
-          <div className="mb-8">
-            <div className="mb-3 flex items-center justify-center gap-3">
+          <div className="mb-12">
+            <div className="mb-4 flex items-center justify-center gap-4">
               {STEPS.map((label, i) => (
-                <div key={label} className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
+                <div key={label} className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
                     <span
                       className={cn(
-                        "flex h-7 w-7 items-center justify-center rounded-full border text-xs font-semibold transition-colors",
+                        "flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold transition-all",
                         i < step
-                          ? "border-primary bg-primary text-primary-foreground"
+                          ? "border-primary bg-primary text-primary-foreground shadow-lg"
                           : i === step
-                            ? "border-primary text-primary"
-                            : "border-border text-muted-foreground",
+                            ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
+                            : "border-border/50 text-muted-foreground",
                       )}
                     >
-                      {i < step ? <Check className="h-3.5 w-3.5" /> : i + 1}
+                      {i < step ? <Check className="h-4 w-4" /> : i + 1}
                     </span>
                     <span
                       className={cn(
-                        "text-sm font-medium",
+                        "text-sm font-semibold",
                         i === step ? "text-foreground" : "text-muted-foreground",
                       )}
                     >
                       {label}
                     </span>
                   </div>
-                  {i < STEPS.length - 1 && <div className="h-px w-10 bg-border" />}
+                  {i < STEPS.length - 1 && <div className="h-px w-12 bg-border/30" />}
                 </div>
               ))}
             </div>
-            <Progress value={((step + 1) / STEPS.length) * 100} />
+            <Progress value={((step + 1) / STEPS.length) * 100} className="h-1.5" />
           </div>
 
           {step === 0 ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Configure your environment</CardTitle>
-                <CardDescription>Set up your model and vector database before indexing a repo.</CardDescription>
+            <Card className="border border-border/50 bg-gradient-to-b from-card to-card/95 shadow-xl">
+              <CardHeader className="border-b border-border/30 pb-6">
+                <CardTitle className="text-2xl">Configure your environment</CardTitle>
+                <CardDescription className="mt-2 text-base">Set up your model and vector database before indexing a repo.</CardDescription>
               </CardHeader>
-              <CardContent className="grid gap-8">
+              <CardContent className="grid gap-8 pt-10 pb-8">
                 <ConfigForm
                   config={config}
                   onChange={onChange}
                   modelNames={modelNames}
                   loadingModels={loadingModels}
                 />
-                <div className="flex justify-end">
-                  <Button onClick={handleNext}>
+                <div className="flex justify-end pt-4 border-t border-border/20">
+                  <Button onClick={handleNext} className="h-10 px-6 font-medium">
                     Next
-                    <ArrowRight />
+                    <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
               </CardContent>
             </Card>
           ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Index a repository</CardTitle>
-                <CardDescription>Paste a public GitHub repository URL to analyze.</CardDescription>
+            <Card className="border border-border/50 bg-gradient-to-b from-card to-card/95 shadow-xl">
+              <CardHeader className="border-b border-border/30 pb-6">
+                <CardTitle className="text-2xl">Index a repository</CardTitle>
+                <CardDescription className="mt-2 text-base">Paste a public GitHub repository URL to analyze.</CardDescription>
               </CardHeader>
-              <CardContent className="grid gap-6">
-                <div className="grid gap-1.5">
-                  <Label htmlFor="repo">GitHub Repository URL</Label>
+              <CardContent className="grid gap-8 pt-10 pb-8">
+                <div className="grid gap-3">
+                  <Label htmlFor="repo" className="text-sm font-semibold">GitHub Repository URL</Label>
                   <div className="relative">
-                    <Github className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Github className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="repo"
-                      className="pl-9"
+                      className="pl-11 h-10 text-sm"
                       placeholder="https://github.com/owner/repo"
                       value={repoUrl}
                       onChange={(e) => setRepoUrl(e.target.value)}
@@ -218,28 +218,28 @@ export default function Setup() {
                 </div>
 
                 {jobState && (
-                  <div className="grid gap-2 rounded-lg border border-border bg-secondary/30 p-4">
+                  <div className="grid gap-3 rounded-xl border border-border/50 bg-muted/30 p-5">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-2 font-medium">
+                      <span className="flex items-center gap-2.5 font-semibold text-foreground">
                         {jobState !== "completed" && jobState !== "failed" && (
                           <Loader2 className="h-4 w-4 animate-spin text-primary" />
                         )}
                         {jobState === "completed" && <Check className="h-4 w-4 text-primary" />}
                         {statusLabel(jobState)}
                       </span>
-                      <span className="text-muted-foreground">{Math.round(progress)}%</span>
+                      <span className="text-muted-foreground font-medium">{Math.round(progress)}%</span>
                     </div>
-                    <Progress value={progress} />
+                    <Progress value={progress} className="h-2" />
                   </div>
                 )}
 
-                <div className="flex items-center justify-between">
-                  <Button variant="ghost" onClick={() => setStep(0)} disabled={indexing}>
-                    <ArrowLeft />
+                <div className="flex items-center justify-between pt-4 border-t border-border/20">
+                  <Button variant="outline" onClick={() => setStep(0)} disabled={indexing} className="h-10">
+                    <ArrowLeft className="h-4 w-4" />
                     Back
                   </Button>
-                  <Button onClick={handleIndex} disabled={indexing}>
-                    {indexing && <Loader2 className="animate-spin" />}
+                  <Button onClick={handleIndex} disabled={indexing} className="h-10 px-6 font-medium">
+                    {indexing && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                     {indexing ? "Indexing..." : "Index repository"}
                   </Button>
                 </div>

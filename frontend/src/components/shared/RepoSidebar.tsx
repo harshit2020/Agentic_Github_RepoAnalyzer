@@ -159,7 +159,7 @@ export function RepoSidebar() {
               <span>Vector DB changed. Indexing will clear all previously indexed repos.</span>
             </div>
           )}
-          <div className="grid gap-1.5">
+          <div className="grid gap-2">
             <Label htmlFor="sidebar-repo" className="text-xs">
               GitHub URL
             </Label>
