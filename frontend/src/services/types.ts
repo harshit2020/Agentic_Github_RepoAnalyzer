@@ -37,7 +37,7 @@ export interface SetupConfig {
   requests_per_second: number
   max_bucket_size: number
   // Vector DB
-  db_flag: boolean // true = CLOUD, false = LOCAL
+  db_flag: boolean // false = CLOUD, true = LOCAL
   CHROMA_API_KEY: string
   CHROMA_HOST: string
   CHROMA_TENANT: string

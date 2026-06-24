@@ -72,7 +72,8 @@ function Field({
 
 export function ConfigForm({ config, onChange, modelNames, loadingModels }: ConfigFormProps) {
   const modelMode: "cloud" | "local" = config.ollama_flag ? "local" : "cloud"
-  const dbMode: "cloud" | "local" = config.db_flag ? "cloud" : "local"
+  // db_flag: false = CLOUD, true = LOCAL
+  const dbMode: "cloud" | "local" = config.db_flag ? "local" : "cloud"
 
   const num = (v: string) => (v === "" ? 0 : Number(v))
 
@@ -90,7 +91,11 @@ export function ConfigForm({ config, onChange, modelNames, loadingModels }: Conf
           value={modelMode}
           cloudLabel="Cloud"
           localLabel="Local (Ollama)"
-          onChange={(v) => onChange({ ollama_flag: v === "local" })}
+          onChange={(v) =>
+            v === "local"
+              ? onChange({ ollama_flag: true, api_key: "" })
+              : onChange({ ollama_flag: false, ollama_host: "", ollama_port: "" })
+          }
         />
 
         {modelMode === "cloud" ? (
@@ -199,7 +204,21 @@ export function ConfigForm({ config, onChange, modelNames, loadingModels }: Conf
           <p className="mt-1.5 text-sm text-muted-foreground">Where your repository embeddings are stored.</p>
         </div>
 
-        <ModeToggle idPrefix="db" value={dbMode} onChange={(v) => onChange({ db_flag: v === "cloud" })} />
+        <ModeToggle
+          idPrefix="db"
+          value={dbMode}
+          onChange={(v) =>
+            v === "cloud"
+              ? onChange({ db_flag: false, db_host: "", db_port: "" })
+              : onChange({
+                  db_flag: true,
+                  CHROMA_API_KEY: "",
+                  CHROMA_HOST: "",
+                  CHROMA_TENANT: "",
+                  CHROMA_DATABASE: "",
+                })
+          }
+        />
 
         {dbMode === "cloud" ? (
           <div className="grid gap-4 sm:grid-cols-2 w-full">

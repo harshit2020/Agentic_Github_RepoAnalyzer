@@ -16,7 +16,8 @@ const uploadOnCloudinary = async(filePath)=>{
         if(!filePath){
             throw new ApiError(502,"Upload on Cloudinary failed as filePath not found!!")
         }
-        
+        const stats = fs.statSync(filePath)
+        console.log("Size:", stats.size)
         const response = await cloudinary.uploader
         .upload(filePath,{
             resource_type: "auto"
@@ -33,11 +34,18 @@ const uploadOnCloudinary = async(filePath)=>{
         return response;
     }
     catch(error){
-        console.log(`Upload on Cloudinary Failed!! \n${error}`)
-        fs.unlink(filePath)//remove locally saved file as the file operation got failed
+        console.log(`Upload on Cloudinary Failed!!}`,error)
+        fs.unlink(filePath, (err) => {
+        if (err) {
+            console.error('Error deleting file:', err);
+            return;
+        }
+        console.log(`${filePath} was successfully deleted.`);
+        });//remove locally saved file as the file operation got failed
         return null;
     }
 }
 
+// uploadOnCloudinary("node_pipeline/public/tmp/Flux_Dev_Closeup_anime_portrait_of_a_male_humanoid_character_w_3.jpg")
 
 export default uploadOnCloudinary

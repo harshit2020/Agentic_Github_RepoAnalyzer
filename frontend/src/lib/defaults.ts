@@ -13,8 +13,8 @@ export const defaultConfig: SetupConfig = {
   temperature: 0.2,
   requests_per_second: 1,
   max_bucket_size: 10,
-  // Vector DB — default to CLOUD
-  db_flag: true,
+  // Vector DB — default to CLOUD (false = CLOUD, true = LOCAL)
+  db_flag: false,
   CHROMA_API_KEY: "",
   CHROMA_HOST: "",
   CHROMA_TENANT: "",

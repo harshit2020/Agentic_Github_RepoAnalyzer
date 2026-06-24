@@ -172,7 +172,8 @@ const changeCurrentPassword = asyncHandler(async(req,res)=>{
 
 const changeAvatar = asyncHandler(async(req,res)=>{
     const {user_id} = req.body
-    
+    console.log("BODY", req.body)
+    console.log("FILES", req.files)
     // Check if user exists
     const user = await User.findOne({email:user_id})
     if(!user){
@@ -184,7 +185,7 @@ const changeAvatar = asyncHandler(async(req,res)=>{
     if(!avatarPath){
         throw new ApiError(400,"Avatar file is required")
     }
-    
+    console.log("avatarPath", avatarPath)
     // Upload new avatar to Cloudinary
     const avatarResponse = await uploadOnCloudinary(avatarPath)
     if(!avatarResponse?.url){

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 import type { SetupConfig, User } from "@/services/types"
-import { getIndexedRepos } from "@/services/api"
+import { getIndexedRepos, getUserSetup } from "@/services/api"
+import { defaultConfig } from "@/lib/defaults"
 interface AuthContextValue {
   user: User | null
   isSetupComplete: boolean
@@ -23,6 +24,14 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 const STORAGE = {
   user: "ra_user",
   setup: "ra_setup_complete",
+  config: "ra_config",
+}
+
+/** Redis stores booleans as strings; coerce safely. */
+function coerceBool(v: unknown): boolean {
+  if (typeof v === "boolean") return v
+  if (typeof v === "string") return v === "true" || v === "1"
+  return Boolean(v)
 }
 
 function readJSON<T>(key: string, fallback: T): T {
@@ -51,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useState<string[]>([])
 
   const [config, setConfigState] =
-    useState<SetupConfig | null>(null)
+    useState<SetupConfig | null>(() => readJSON<SetupConfig | null>(STORAGE.config, null))
 
 
   useEffect(() => {
@@ -64,6 +73,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (repos.length > 0 && !currentRepo) {
           setCurrentRepoState(repos[0])
+        }
+      } catch (err) {
+        console.error(err)
+      }
+
+      // Hydrate config from the backend, merging over localStorage/defaults.
+      try {
+        const setup = await getUserSetup(user.email)
+        const backend = setup?.config
+        if (backend && typeof backend === "object") {
+          setConfigState((prev) => {
+            const merged: SetupConfig = { ...defaultConfig, ...(prev ?? {}) }
+            if (backend.modelName !== undefined) merged.modelName = backend.modelName
+            if (backend.api_key !== undefined) merged.api_key = backend.api_key
+            if (backend.ollama_flag !== undefined) merged.ollama_flag = coerceBool(backend.ollama_flag)
+            if (backend.db_flag !== undefined) merged.db_flag = coerceBool(backend.db_flag)
+            return merged
+          })
         }
       } catch (err) {
         console.error(err)
@@ -85,6 +112,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem(STORAGE.setup, JSON.stringify(isSetupComplete))
   }, [isSetupComplete])
+
+  useEffect(() => {
+    if (config) localStorage.setItem(STORAGE.config, JSON.stringify(config))
+    else localStorage.removeItem(STORAGE.config)
+  }, [config])
 
   console.log("AUTH CONTEXT")
   console.log("user", user)
