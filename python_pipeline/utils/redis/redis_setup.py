@@ -48,7 +48,7 @@ def get_redis_setup(user_id):
         user_info = r.hgetall(user_id)
         user_info["modelName"] = user_info.pop("model_name")
         if user_info["db_flag"] == "True":
-            user_info["db_flag"] = True
+            user_info["db_flag"] = True # dont judge its just frontend issue
         else:
             user_info["db_flag"] = False
         if user_info["ollama_flag"] == "True":

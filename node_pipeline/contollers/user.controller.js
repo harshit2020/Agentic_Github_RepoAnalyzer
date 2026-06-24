@@ -110,7 +110,7 @@ const loginUser = asyncHandler(async(req,res)=>{
      
     //generate tokens
     const {accessToken,refreshToken} = await generateAccessAndRefreshToken(userExists)
-    
+    const loggedInUser = await User.findById(userExists._id).select("-password -refreshToken")
 
     //cookies
     const options = {
@@ -122,7 +122,7 @@ const loginUser = asyncHandler(async(req,res)=>{
     .status(201)
 
     .json(
-        new ApiResponse(200,{userExists:username},"User Login successful")
+        new ApiResponse(200,loggedInUser,"User Login successful")
     )
 })
 
@@ -170,10 +170,63 @@ const changeCurrentPassword = asyncHandler(async(req,res)=>{
     )
 })
 
+const changeAvatar = asyncHandler(async(req,res)=>{
+    const {user_id} = req.body
+    
+    // Check if user exists
+    const user = await User.findOne({email:user_id})
+    if(!user){
+        throw new ApiError(401,"User not found")
+    }
+    
+    // Check if avatar file is provided
+    const avatarPath = req.files?.avatar[0]?.path
+    if(!avatarPath){
+        throw new ApiError(400,"Avatar file is required")
+    }
+    
+    // Upload new avatar to Cloudinary
+    const avatarResponse = await uploadOnCloudinary(avatarPath)
+    if(!avatarResponse?.url){
+        throw new ApiError(500,"Failed to upload avatar to Cloudinary")
+    }
+    
+    // Update user avatar
+    user.avatar = avatarResponse.url
+    await user.save({validateBeforeSave:false})
+    
+    // Fetch updated user without sensitive fields
+    const updatedUser = await User.findById(user._id).select("-password -refreshToken")
+    
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,updatedUser,"Avatar Updated Successfully!!!")
+    )
+})
 
-
+const deleteAvatar = asyncHandler(async(req,res)=>{
+    const {user_id} = req.body
+    console.log(`Inside delete avatar\n ${user_id}`)
+    // Check if user exists
+    const user = await User.updateOne({email:user_id},{$unset:{avatar:""}})
+    if(!user){
+        throw new ApiError(401,"User not found")
+    }
+    
+    // Fetch updated user without sensitive fields
+    const updatedUser = await User.findById(user._id).select("-password -refreshToken")
+    
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,updatedUser,"Avatar Updated Successfully!!!")
+    )
+})
 export {
     registerUser,
     loginUser,
     changeCurrentPassword,
+    changeAvatar,
+    deleteAvatar
 }

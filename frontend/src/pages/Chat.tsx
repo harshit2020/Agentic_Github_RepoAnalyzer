@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react"
-import { Send, Loader2, MessageSquare, Trash2, Github } from "lucide-react"
+import { Send, Loader2, MessageSquare, Trash2, Github, Zap } from "lucide-react"
 import { Layout } from "@/components/shared/Layout"
 import { RepoSidebar } from "@/components/shared/RepoSidebar"
 import { ChatMessage } from "@/components/shared/ChatMessage"
@@ -19,7 +19,7 @@ const SUGGESTIONS = [
 ]
 
 export default function Chat() {
-  const { user, currentRepo } = useAuth()
+  const { user, currentRepo, config } = useAuth()
   const { poll } = usePollJob()
   const [messages, setMessages] = useState<ChatMessageType[]>([])
   const [input, setInput] = useState("")
@@ -119,6 +119,14 @@ export default function Chat() {
             ) : (
               <span className="text-muted-foreground">No repository selected</span>
             )}
+            
+            {config?.modelName && (
+              <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
+                <Zap className="h-3 w-3" />
+                <span>Using: <span className="font-medium text-foreground">{config.modelName}</span></span>
+              </div>
+            )}
+            
             {messages.length > 0 && (
               <Button
                 variant="ghost"

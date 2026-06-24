@@ -2,7 +2,7 @@ import { useRef, useState } from "react"
 import { toast } from "sonner"
 import { Camera, KeyRound, Loader2, Mail, Trash2, User as UserIcon } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
-import { changePassword, extractErrorMessage } from "@/services/api"
+import { changePassword, changeAvatar, extractErrorMessage, deleteAvatar } from "@/services/api"
 import { getInitials } from "@/lib/utils"
 import { Layout } from "@/components/shared/Layout"
 import { Button } from "@/components/ui/button"
@@ -19,11 +19,12 @@ export default function Profile() {
   const [next, setNext] = useState("")
   const [confirm, setConfirm] = useState("")
   const [saving, setSaving] = useState(false)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   if (!user) return null
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     e.target.value = "" // allow re-selecting the same file
     if (!file) return
@@ -35,18 +36,40 @@ export default function Profile() {
       toast.error("Image is too large. Please choose one under 2MB.")
       return
     }
+
+    // Show preview immediately
     const reader = new FileReader()
     reader.onload = () => {
       updateUser({ avatar: reader.result as string })
-      toast.success("Profile photo updated.")
     }
-    reader.onerror = () => toast.error("Could not read the selected image.")
     reader.readAsDataURL(file)
+
+    // Upload to backend
+    setUploadingAvatar(true)
+    try {
+      const response = await changeAvatar(user.email, file)
+      const updatedUser = response?.data || response
+      updateUser({ avatar: updatedUser?.avatar })
+      toast.success("Profile photo updated successfully.")
+    } catch (err) {
+      toast.error(extractErrorMessage(err))
+      // Revert to old avatar on error
+      updateUser({ avatar: user.avatar })
+    } finally {
+      setUploadingAvatar(false)
+    }
   }
 
   const removePhoto = () => {
-    updateUser({ avatar: undefined })
-    toast.success("Profile photo removed.")
+    try{
+      updateUser({ avatar: undefined })
+      const response = deleteAvatar(user.email)
+      toast.success("Profile photo removed.")
+    }
+    catch(err){
+      toast.error(extractErrorMessage(err))
+    }
+
   }
 
   const submit = async (e: React.FormEvent) => {
@@ -101,7 +124,7 @@ export default function Profile() {
               <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
                 <div className="relative">
                   <Avatar className="h-16 w-16 border border-border">
-                    {user.avatar && <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.username} />}
+                    {user.avatar && <AvatarImage src={user.avatar} alt={user.username} />}
                     <AvatarFallback className="bg-primary text-lg text-primary-foreground">
                       {getInitials(user.username || user.email)}
                     </AvatarFallback>
@@ -109,10 +132,15 @@ export default function Profile() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-muted"
+                    disabled={uploadingAvatar}
+                    className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Upload profile photo"
                   >
-                    <Camera className="h-3.5 w-3.5" />
+                    {uploadingAvatar ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Camera className="h-3.5 w-3.5" />
+                    )}
                   </button>
                   <input
                     ref={fileInputRef}

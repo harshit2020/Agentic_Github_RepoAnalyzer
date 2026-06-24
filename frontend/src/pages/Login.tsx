@@ -30,7 +30,6 @@ export default function Login() {
       const data = await loginApi({ email, password })
       const username: string = data?.username || data?.user?.username || email.split("@")[0]
       const avatar: string | undefined = data?.avatar || data?.user?.avatar
-
       login({ email, username, avatar })
 
       // Check if this user already has a saved setup.

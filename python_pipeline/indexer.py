@@ -16,7 +16,9 @@ from python_pipeline.utils.codebase_summary_llm import generate_codebase_summary
 from python_pipeline.utils.vectorDB.vectorize_llm_output import chunk_to_vector_text,file_to_vector_text,module_to_vector_text,codebase_to_vector_text
 from python_pipeline.utils.vectorDB.crud_collection import *
 from python_pipeline.utils.vectorDB.metadata_creator import *
-from python_pipeline.agent import get_user_info
+from python_pipeline.agent import get_user_info,store_thread_id
+from python_pipeline.utils.repo_clone.git_clone_repo import clone_repo
+from python_pipeline.utils.repo_clone.delete_repo import delete_repo
 
 #loading some environment
 load_dotenv()
@@ -53,6 +55,7 @@ def embed_list_str(stringg_listt):
 def indexer(user_id,repo_url):
     
     try:
+        del_path = clone_repo(repo_url)
         path = "python_pipeline/input_code"
 
         exists = get_user_info(user_id)
@@ -132,12 +135,11 @@ def indexer(user_id,repo_url):
         embeddings_codebase_summary = embed_list_str(text_codebase_summary)
         metadatas_codebase_summary = metadata_codebase_level(repo_id,repo_name,codebase_summary)
         add_collection(client,[codebase_summary],text_codebase_summary,embeddings_codebase_summary,ollama_flag,db_flag,name_collection,metadatas_codebase_summary)
-        
-
+        store_thread_id(user_id,"",name_collection)
         print("Indexing Completed Successfully!!")
+        delete_repo(del_path)
     except Exception as e:
         raise ValueError(f"Indexing failed: {str(e)}")
-        return None
 
 if __name__ == "__main__":
     user_id = "test_mail@gmail.com"

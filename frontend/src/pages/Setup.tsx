@@ -218,18 +218,27 @@ export default function Setup() {
                 </div>
 
                 {jobState && (
-                  <div className="grid gap-3 rounded-xl border border-border/50 bg-muted/30 p-5">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-2.5 font-semibold text-foreground">
-                        {jobState !== "completed" && jobState !== "failed" && (
-                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                        )}
-                        {jobState === "completed" && <Check className="h-4 w-4 text-primary" />}
-                        {statusLabel(jobState)}
-                      </span>
-                      <span className="text-muted-foreground font-medium">{Math.round(progress)}%</span>
+                  <div className="grid gap-3">
+                    <div className="rounded-xl border border-border/50 bg-muted/30 p-5">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-2.5 font-semibold text-foreground">
+                          {jobState !== "completed" && jobState !== "failed" && (
+                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                          )}
+                          {jobState === "completed" && <Check className="h-4 w-4 text-primary" />}
+                          {statusLabel(jobState)}
+                        </span>
+                        <span className="text-muted-foreground font-medium">{Math.round(progress)}%</span>
+                      </div>
+                      <Progress value={progress} className="h-2" />
                     </div>
-                    <Progress value={progress} className="h-2" />
+                    {jobState === "failed" && (
+                      <div className="rounded-lg border border-amber-200/50 bg-amber-50/50 p-4 dark:border-amber-900/30 dark:bg-amber-950/20">
+                        <p className="text-sm text-amber-900 dark:text-amber-200">
+                          <span className="font-semibold">Indexing failed.</span> Please check your model and vector database configurations. If the issue persists, try using a different API key.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 

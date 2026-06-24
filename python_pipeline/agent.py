@@ -74,7 +74,7 @@ def invoke_agent(user_query,user_id,name_collection):
         user_thread_id_info = get_user_thread(user_id)
         if user_info is None:
             raise ValueError("User not initialized!!")
-        if name_collection not in user_thread_id_info:
+        if name_collection in user_thread_id_info and user_thread_id_info[name_collection] == "":
             thread_id = str(uuid7())
             store_thread_id(user_id,thread_id,name_collection)
             print("New session initialized !!")

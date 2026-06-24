@@ -1,9 +1,9 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { AlertTriangle, Check, FolderGit2, Github, Loader2, RefreshCw } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import { usePollJob } from "@/hooks/usePollJob"
-import { extractErrorMessage, indexRepo, saveUserSetup, checkRepo } from "@/services/api"
+import { extractErrorMessage, indexRepo, saveUserSetup, checkRepo, getIndexedRepos } from "@/services/api"
 import type { JobStatus } from "@/services/types"
 import { shortRepoName } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -29,6 +29,7 @@ export function RepoSidebar() {
     currentRepo,
     indexedRepos,
     setCurrentRepo,
+    setIndexedRepos,
     addIndexedRepo,
     clearIndexedRepos,
   } = useAuth()
@@ -44,6 +45,26 @@ export function RepoSidebar() {
   const [pendingRepo, setPendingRepo] = useState("")
   // Did the user change the vector DB in settings since these repos were indexed?
   const vectorDbChanged = Boolean(config?.dbChanged)
+
+  // Load indexed repos when component mounts
+  useEffect(() => {
+    if (!user?.email) return
+
+    const loadRepos = async () => {
+      try {
+        const repos = await getIndexedRepos(user.email)
+        setIndexedRepos(repos)
+        
+        if (repos.length > 0 && !currentRepo) {
+          setCurrentRepo(repos[0])
+        }
+      } catch (err) {
+        console.error("[v0] Failed to load indexed repos:", err)
+      }
+    }
+
+    loadRepos()
+  }, [user?.email])
 
   const runIndex = async (url: string) => {
     if (!user) return

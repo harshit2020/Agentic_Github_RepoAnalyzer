@@ -16,6 +16,8 @@ export function Header() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
+  console.log("[v0] Header - user:", user)
+
   const handleLogout = () => {
     logout()
     navigate("/login")
@@ -37,7 +39,7 @@ export function Header() {
           <DropdownMenu>
             <DropdownMenuTrigger className="rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
               <Avatar className="h-9 w-9 border border-border">
-                {user.avatar && <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.username} />}
+                <AvatarImage src={user.avatar} alt={user.username} />
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   {getInitials(user.username || user.email)}
                 </AvatarFallback>

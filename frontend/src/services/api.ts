@@ -49,15 +49,37 @@ api.interceptors.request.use((config) => {
 /* ---------------------------------- Auth --------------------------------- */
 
 export async function signup(payload: SignupPayload) {
+  // If avatar is provided, use FormData for multipart/form-data upload
+  if (payload.avatar) {
+    const formData = new FormData()
+    formData.append("username", payload.username)
+    formData.append("email", payload.email)
+    formData.append("password", payload.password)
+    formData.append("avatar", payload.avatar)
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/users_nonVecDB/signup`, {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || "Signup failed")
+    }
+
+    return response.json()
+  }
+
+  // Original JSON approach for backward compatibility
   const { data } = await api.post("/api/v1/users_nonVecDB/signup", payload)
   return data
 }
 
 export async function login(payload: LoginPayload) {
   console.log("Inside login ")
-  console.log(payload)
   const { data } = await api.post("/api/v1/users_nonVecDB/login", payload)
-  return data
+  return data.data
 }
 
 export async function changePassword(payload: ChangePasswordPayload) {
@@ -65,14 +87,37 @@ export async function changePassword(payload: ChangePasswordPayload) {
   return data
 }
 
-export async function getSavedRepos(email: string): Promise<string[]> {
-  const { data } = await api.get("/api/v1/users_nonVecDB/saved_repo", {
-    params: { user_id: email },
+export async function changeAvatar(user_id: string, avatar: File) {
+  const formData = new FormData()
+  formData.append("user_id", user_id)
+  formData.append("avatar", avatar)
+
+  const response = await fetch(`${API_BASE_URL}/api/v1/users_nonVecDB/change_avatar`, {
+    method: "POST",
+    body: formData,
+    credentials: "include",
   })
-  // Normalize a few possible response shapes into a string[].
-  if (Array.isArray(data?.savedRepos)) return data.savedRepos
-  return []
+
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(errorData.message || "Failed to change avatar")
+  }
+
+  return response.json()
 }
+
+export async function deleteAvatar(user_id:string){
+  const{data} = await api.post("/api/v1/users_nonVecDB/delete_avatar", {user_id})
+  return data
+}
+// export async function getSavedRepos(email: string): Promise<string[]> {
+//   const { data } = await api.get("/api/v1/users_nonVecDB/saved_repo", {
+//     params: { user_id: email },
+//   })
+//   // Normalize a few possible response shapes into a string[].
+//   if (Array.isArray(data?.savedRepos)) return data.savedRepos
+//   return []
+// }
 
 /* --------------------------------- Models -------------------------------- */
 
